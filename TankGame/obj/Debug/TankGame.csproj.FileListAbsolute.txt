@@ -1,0 +1,7 @@
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\bin\Debug\TankGame.exe.config
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\bin\Debug\TankGame.exe
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\bin\Debug\TankGame.pdb
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\bin\Debug\OpenTK.dll
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAssemblyReference.cache
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.exe
+G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.pdb
