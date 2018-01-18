@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using OpenTK.Graphics;
 
 namespace TankGame
 {
@@ -65,6 +66,10 @@ namespace TankGame
                     }
                 };
 
+                // Create test tank
+                TestTank tank = new TestTank();
+                List<Mesh> tankMeshes = tank.CreateMeshes();
+
                 game.RenderFrame += (sender, e) =>
                 {
                     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -85,7 +90,14 @@ namespace TankGame
 
                     GL.Begin(PrimitiveType.Lines);
 
-                    DrawTank();
+                    //DrawTank();
+                    
+                    // Move and draw test tank
+                    foreach (Mesh mesh in tankMeshes)
+                    {
+                        mesh.Position = new Vector2(mesh.Position[0] + 0.01f, 0);
+                    }
+                    DrawMeshes(tankMeshes, Color.Red);
 
                     GL.End();
 
@@ -136,6 +148,24 @@ namespace TankGame
             GL.Vertex3(new Vector3(3, -.15f, 0));
             GL.Vertex3(new Vector3(.75f, -.15f, 0));
 
+        }
+
+        public static void DrawMeshes(List<Mesh> meshes, Color color)
+        {
+            GL.Color4(color);
+            foreach (Mesh mesh in meshes)
+            {
+                for (int i = 0; i < mesh.Vertices.Length; i++)
+                {
+                    // Vertex positions are offsets from mesh.Position
+                    // Draw lines between 2 vertices
+                    GL.Vertex2(mesh.Position + mesh.Vertices[i]);
+                    if(i + 1 < mesh.Vertices.Length)
+                        GL.Vertex2(mesh.Position + mesh.Vertices[i + 1]);
+                    else
+                        GL.Vertex2(mesh.Position + mesh.Vertices[0]);
+                }
+            }            
         }
     }
 }
