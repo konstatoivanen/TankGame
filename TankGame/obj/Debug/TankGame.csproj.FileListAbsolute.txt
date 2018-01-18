@@ -5,3 +5,10 @@ G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\bin\Debug\OpenTK.dll
 G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAssemblyReference.cache
 G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.exe
 G:\The P-mar Project\GitHub\TankGame\TankGame\TankGame\obj\Debug\TankGame.pdb
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.exe.config
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.exe
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.pdb
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.exe
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.pdb
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\bin\Debug\OpenTK.dll
+C:\Users\LauriRas\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAssemblyReference.cache
