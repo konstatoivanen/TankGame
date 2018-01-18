@@ -69,7 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mesh.cs" />
+    <Compile Include="Util\Mesh.cs" />
     <Compile Include="TankGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestTank.cs" />

@@ -95,7 +95,7 @@ namespace TankGame
                     // Move and draw test tank
                     foreach (Mesh mesh in tankMeshes)
                     {
-                        mesh.Position = new Vector3(mesh.Position[0] + 0.01f, 0, 0);
+                        mesh.Position = new Vector2(mesh.Position[0] + 0.01f, 0);
                     }
                     DrawMeshes(tankMeshes, Color.Red);
 
@@ -159,11 +159,11 @@ namespace TankGame
                 {
                     // Vertex positions are offsets from mesh.Position
                     // Draw lines between 2 vertices
-                    GL.Vertex3(mesh.Position + mesh.Vertices[i]);
+                    GL.Vertex2(mesh.Position + mesh.Vertices[i]);
                     if(i + 1 < mesh.Vertices.Length)
-                        GL.Vertex3(mesh.Position + mesh.Vertices[i + 1]);
+                        GL.Vertex2(mesh.Position + mesh.Vertices[i + 1]);
                     else
-                        GL.Vertex3(mesh.Position + mesh.Vertices[0]);
+                        GL.Vertex2(mesh.Position + mesh.Vertices[0]);
                 }
             }            
         }
