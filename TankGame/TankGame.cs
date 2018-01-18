@@ -5,10 +5,11 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using OpenTK.Graphics;
+using Utils;
 
 namespace TankGame
 {
-    class TankGame
+    public static class TankGame
     {
         private static int startTime = 0;
         private static GameWindow game = new GameWindow();
@@ -90,8 +91,6 @@ namespace TankGame
 
                     GL.Begin(PrimitiveType.Lines);
 
-                    //DrawTank();
-                    
                     // Move and draw test tank
                     foreach (Mesh mesh in tankMeshes)
                     {
@@ -106,48 +105,6 @@ namespace TankGame
 
                 game.Run(60.0);
             }
-        }
-
-        public static void DrawTank()
-        {
-            GL.Color4(Color.Cyan);
-
-            //Hull
-            GL.Vertex3(new Vector3(-2, 1, 0));
-            GL.Vertex3(new Vector3(2,  1, 0));
-
-            GL.Vertex3(new Vector3(2,  1, 0));
-            GL.Vertex3(new Vector3(2, -1, 0));
-
-            GL.Vertex3(new Vector3(2,  -1, 0));
-            GL.Vertex3(new Vector3(-2, -1, 0));
-
-            GL.Vertex3(new Vector3(-2,  1, 0));
-            GL.Vertex3(new Vector3(-2, -1, 0));
-
-            //Tower
-            GL.Vertex3(new Vector3(-.75f, .75f, 0));
-            GL.Vertex3(new Vector3(.75f, .75f, 0));
-
-            GL.Vertex3(new Vector3(.75f, .75f, 0));
-            GL.Vertex3(new Vector3(.75f, -.75f, 0));
-
-            GL.Vertex3(new Vector3(.75f, -.75f, 0));
-            GL.Vertex3(new Vector3(-.75f, -.75f, 0));
-
-            GL.Vertex3(new Vector3(-.75f, .75f, 0));
-            GL.Vertex3(new Vector3(-.75f, -.75f, 0));
-
-            //Cannon
-            GL.Vertex3(new Vector3(.75f, .15f, 0));
-            GL.Vertex3(new Vector3(3, .15f, 0));
-
-            GL.Vertex3(new Vector3(3, .15f, 0));
-            GL.Vertex3(new Vector3(3, -.15f, 0));
-
-            GL.Vertex3(new Vector3(3, -.15f, 0));
-            GL.Vertex3(new Vector3(.75f, -.15f, 0));
-
         }
 
         public static void DrawMeshes(List<Mesh> meshes, Color color)
