@@ -1,0 +1,26 @@
+// "Jokaisen on osallistuttava ohjelmointiin ja pidettävä projektipäiväkirjaa josta oma panos käy ilmi. 
+// Lisäksi lähdekoodien alkuun on merkittävä selvästi kuka ne on luonut ja kuka niitä on milloinkin muokannut (muokkaushistoria)."
+
+Project diary
+
+18/01/2018
+
+Anssi:
+
+Konsta:
+
+Lauri:
+- Familiarize myself with Konsta's existing code
+- Added basic Mesh class
+
+- - -
+
+xx/01/2018
+
+Anssi:
+
+Konsta:
+
+Lauri:
+
+- - -
