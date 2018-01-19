@@ -10,7 +10,7 @@ Anssi:
 Konsta:
 -Initialized the project by creating a simple implementation of opentk gamewindow class
 -Added a clockwise comparer for sorting vector2 arrays
--Added a vector2 rotate extension mehtod
+-Added a vector2 rotate and getnormal extension mehtods
 
 Lauri:
 - Familiarize myself with Konsta's existing code
