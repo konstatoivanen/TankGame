@@ -1,5 +1,5 @@
-// "Jokaisen on osallistuttava ohjelmointiin ja pidett‰v‰ projektip‰iv‰kirjaa josta oma panos k‰y ilmi. 
-// Lis‰ksi l‰hdekoodien alkuun on merkitt‰v‰ selv‰sti kuka ne on luonut ja kuka niit‰ on milloinkin muokannut (muokkaushistoria)."
+// "Jokaisen on osallistuttava ohjelmointiin ja pidett√§v√§ projektip√§iv√§kirjaa josta oma panos k√§y ilmi. 
+// Lis√§ksi l√§hdekoodien alkuun on merkitt√§v√§ selv√§sti kuka ne on luonut ja kuka niit√§ on milloinkin muokannut (muokkaushistoria)."
 
 Project diary
 
@@ -8,6 +8,9 @@ Project diary
 Anssi:
 
 Konsta:
+-Initialized the project by creating a simple implementation of opentk gamewindow class
+-Added a clockwise comparer for sorting vector2 arrays
+-Added a vector2 rotate extension mehtod
 
 Lauri:
 - Familiarize myself with Konsta's existing code
