@@ -1,20 +1,87 @@
 ﻿using System;
+using System.Drawing;
 using System.Collections;
 using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL;
 using OpenTK;
 
 namespace Utils
 {
+    public abstract class BaseObject
+    {
+        public  Vector2 position { get; set; }
+        private Vector2 m_fwd = new Vector2(1, 0);
+        public  Vector2 forward  { get { return m_fwd; } set { m_fwd = value; m_fwd.Normalize(); } }
+        public  Vector2 right    { get { return forward.GetNormal(); } }
+
+        public List<Mesh> mesh { get; set; }
+
+        public BaseObject(Vector2 p, Vector2 f)
+        {
+            position = p;
+            m_fwd = f;
+
+            TankGame.TankGame.OnUpdate += Update;
+        }
+        public BaseObject()
+        {
+            position = Vector2.Zero;
+            m_fwd = new Vector2(1,0);
+
+            TankGame.TankGame.OnUpdate += Update;
+        }
+
+        public abstract void Update();
+    }
+
     public class Mesh
     {
-        public Vector2 Position { get; set; }
-        public float Rotation { get; set; }
-        // Vertex vectors should be offsets of position
-        public Vector2[] Vertices { get; set; }
+        public PrimitiveType renderMode;
+        public Color         color;
+
+        public  Vector2     position { get; set; }
+        private Vector2     m_fwd = new Vector2(1, 0);
+        public  Vector2     forward  { get { return m_fwd; } set { m_fwd = value; m_fwd.Normalize(); } }
+        public  Vector2     right    { get { return forward.GetNormal(); } }
+        public  Vector2[]   vertices { get; set; }
 
         public Mesh(int vertexCount)
         {
-            Vertices = new Vector2[vertexCount];
+            vertices = new Vector2[vertexCount];
+        }
+        public Mesh(Vector2[] v, Color c, PrimitiveType t)
+        {
+            vertices = v;
+            color = c;
+            renderMode = t;
+        }
+        public Mesh(Vector2[] v, Color c)
+        {
+            vertices = v;
+            color = c;
+            renderMode = PrimitiveType.LineStrip;
+        }
+        public Mesh(Vector2[] v, PrimitiveType t)
+        {
+            vertices = v;
+            color = Color.White;
+            renderMode = t;
+        }
+        public Mesh(Vector2[] v)
+        {
+            vertices = v;
+            color = Color.White;
+            renderMode = PrimitiveType.LineStrip;
+        }
+
+        public void Draw()
+        {
+            GL.Begin(renderMode);
+            GL.Color4(color);
+
+            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(position + vertices[i].TransformPoint(right, forward));
+
+            GL.End();
         }
     }
 
@@ -31,7 +98,10 @@ namespace Utils
             v.Y = (sin * tx) + (cos * ty);
             return v;
         }
-
+        public static Vector2 TransformPoint(this Vector2 v, Vector2 r, Vector2 f)
+        {
+            return r * v.Y + f * v.X;
+        }
         public static Vector2 GetNormal(this Vector2 v)
         {
             return new Vector2(-v.Y, v.X);

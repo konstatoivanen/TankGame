@@ -9,9 +9,10 @@ using Utils;
 
 namespace TankGame
 {
-    public static class TankGame
+    public class TankGame
     {
         private static int startTime = 0;
+
         private static GameWindow game = new GameWindow();
 
         //Get time since start
@@ -24,7 +25,36 @@ namespace TankGame
         {
             get { return (float)game.Width / game.Height; }
         }
-      
+
+        public delegate void UpdateEvent();
+        public static UpdateEvent OnUpdate; 
+
+
+        private static List<Mesh> m_meshList = new List<Mesh>();      
+        public static void AddMeshToRenderStack(Mesh m)
+        {
+            if (m_meshList.Contains(m))
+                return;
+
+            m_meshList.Add(m);
+        }
+        public static void AddMeshesToRenderStack(List<Mesh> m)
+        {
+            for (int i = 0; i < m.Count; ++i)
+                if (m_meshList.Contains(m[i]))
+                    return;
+
+
+            m_meshList.AddRange(m);
+        }     
+        public static void RemoveMeshFromRenderStack(Mesh m)
+        {
+            if (!m_meshList.Contains(m))
+                return;
+
+            m_meshList.Remove(m);
+        }
+
 
         [STAThread]
         public static void Main()
@@ -37,6 +67,10 @@ namespace TankGame
                 {
                     game.VSync = VSyncMode.On;
                     startTime = Environment.TickCount;
+
+                    // Create test tank
+                    TestTank tank = new TestTank();
+                    AddMeshesToRenderStack(tank.CreateMeshes());
                 };
 
                 game.Resize += (sender, e) =>
@@ -58,6 +92,8 @@ namespace TankGame
                         //Display fps in the title
                         game.Title = "Tank Game";
 
+                        if(OnUpdate != null) OnUpdate();
+
                         // demo controls
                         if (game.Keyboard[Key.Escape])
                         {
@@ -66,10 +102,6 @@ namespace TankGame
 
                     }
                 };
-
-                // Create test tank
-                TestTank tank = new TestTank();
-                List<Mesh> tankMeshes = tank.CreateMeshes();
 
                 game.RenderFrame += (sender, e) =>
                 {
@@ -89,14 +121,7 @@ namespace TankGame
                     GL.LoadMatrix(ref lookMat);
                     #endregion
 
-                    GL.Begin(PrimitiveType.Lines);
-
-                    // Move and draw test tank
-                    foreach (Mesh mesh in tankMeshes)
-                    {
-                        mesh.Position = new Vector2(mesh.Position[0] + 0.01f, 0);
-                    }
-                    DrawMeshes(tankMeshes, Color.Red);
+                    for (int i = 0; i < m_meshList.Count; ++i) m_meshList[i].Draw();
 
                     GL.End();
 
@@ -107,22 +132,5 @@ namespace TankGame
             }
         }
 
-        public static void DrawMeshes(List<Mesh> meshes, Color color)
-        {
-            GL.Color4(color);
-            foreach (Mesh mesh in meshes)
-            {
-                for (int i = 0; i < mesh.Vertices.Length; i++)
-                {
-                    // Vertex positions are offsets from mesh.Position
-                    // Draw lines between 2 vertices
-                    GL.Vertex2(mesh.Position + mesh.Vertices[i]);
-                    if(i + 1 < mesh.Vertices.Length)
-                        GL.Vertex2(mesh.Position + mesh.Vertices[i + 1]);
-                    else
-                        GL.Vertex2(mesh.Position + mesh.Vertices[0]);
-                }
-            }            
-        }
     }
 }

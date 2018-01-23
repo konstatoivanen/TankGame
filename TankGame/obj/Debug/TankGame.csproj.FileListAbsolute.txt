@@ -19,3 +19,10 @@ G:\The P-mar Project\GitHub\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAs
 G:\The P-mar Project\GitHub\TankGame\TankGame\bin\Debug\TankGame.exe
 G:\The P-mar Project\GitHub\TankGame\TankGame\bin\Debug\TankGame.pdb
 G:\The P-mar Project\GitHub\TankGame\TankGame\bin\Debug\OpenTK.dll
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\bin\Debug\TankGame.exe.config
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\obj\Debug\TankGame.exe
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\obj\Debug\TankGame.pdb
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\bin\Debug\TankGame.exe
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\bin\Debug\TankGame.pdb
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\bin\Debug\OpenTK.dll
+C:\Users\anssirem\Desktop\New folder\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAssemblyReference.cache
