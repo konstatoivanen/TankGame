@@ -31,7 +31,27 @@ namespace Utils
             TankGame.TankGame.OnUpdate += Update;
         }
 
-        public abstract void Update();
+
+        public void Translate(Vector2 destination)
+        {            
+            for (int i = 0; i < mesh.Count; i++)
+            {
+                mesh[i].position += destination - position;
+            }
+            position = destination;
+        }
+        public void Rotate(float radians)
+        {
+            m_fwd = m_fwd.Rotate(radians);
+            if (mesh == null || mesh.Count <= 0)
+                return;
+            for (int i = 0; i < mesh.Count; i++)
+            {
+                mesh[i].forward = mesh[i].forward.Rotate(radians);
+            }
+        }
+
+        public abstract void Update(float delta);
     }
 
     public class Mesh
@@ -72,6 +92,14 @@ namespace Utils
             vertices = v;
             color = Color.White;
             renderMode = PrimitiveType.LineStrip;
+        }
+        public void Translate(Vector2 destination)
+        {
+            position = destination;
+        }
+        public void Rotate(float radians)
+        {
+            m_fwd = ExtensionMethods.Rotate(m_fwd, radians);
         }
 
         public void Draw()

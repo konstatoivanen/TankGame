@@ -1,4 +1,4 @@
-// "Jokaisen on osallistuttava ohjelmointiin ja pidettävä projektipäiväkirjaa josta oma panos käy ilmi. 
+﻿// "Jokaisen on osallistuttava ohjelmointiin ja pidettävä projektipäiväkirjaa josta oma panos käy ilmi. 
 // Lisäksi lähdekoodien alkuun on merkittävä selvästi kuka ne on luonut ja kuka niitä on milloinkin muokannut (muokkaushistoria)."
 
 Project diary
@@ -18,12 +18,14 @@ Lauri:
 
 - - -
 
-xx/01/2018
+24/01/2018
 
 Anssi:
 
 Konsta:
 
 Lauri:
+- Basic controls
+- Moving and rotating baseobjects
 
 - - -

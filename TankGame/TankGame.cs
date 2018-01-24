@@ -13,7 +13,7 @@ namespace TankGame
     {
         private static int startTime = 0;
 
-        private static GameWindow game = new GameWindow();
+        public static GameWindow game = new GameWindow();
 
         //Get time since start
         private static float time
@@ -26,7 +26,7 @@ namespace TankGame
             get { return (float)game.Width / game.Height; }
         }
 
-        public delegate void UpdateEvent();
+        public delegate void UpdateEvent(float delta);
         public static UpdateEvent OnUpdate; 
 
 
@@ -60,17 +60,18 @@ namespace TankGame
         public static void Main()
         {
             float lastTime = time;
-
+            Tank tank = new Tank();
             using (game)
             {
+                
                 game.Load += (sender, e) =>
                 {
                     game.VSync = VSyncMode.On;
                     startTime = Environment.TickCount;
 
                     // Create test tank
-                    TestTank tank = new TestTank();
-                    AddMeshesToRenderStack(tank.CreateMeshes());
+                    
+                    AddMeshesToRenderStack(tank.mesh);
                 };
 
                 game.Resize += (sender, e) =>
@@ -92,7 +93,7 @@ namespace TankGame
                         //Display fps in the title
                         game.Title = "Tank Game";
 
-                        if(OnUpdate != null) OnUpdate();
+                        if(OnUpdate != null) OnUpdate(delta);
 
                         // demo controls
                         if (game.Keyboard[Key.Escape])

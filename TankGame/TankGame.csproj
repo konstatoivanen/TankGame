@@ -72,7 +72,7 @@
     <Compile Include="Utilities.cs" />
     <Compile Include="TankGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestTank.cs" />
+    <Compile Include="Tank.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

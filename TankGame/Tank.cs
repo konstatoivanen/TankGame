@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +9,9 @@ using Utils;
 
 namespace TankGame
 {
-    class TestTank : BaseObject
+    class Tank : BaseObject
     {
-        public List<Mesh> CreateMeshes()
+        public Tank()
         {
             List<Mesh> Meshes = new List<Mesh>();
 
@@ -21,8 +22,6 @@ namespace TankGame
             bodyMesh.vertices[3] = new Vector2(-2, -1);
             bodyMesh.color = System.Drawing.Color.AliceBlue;
             bodyMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
-            bodyMesh.forward = new Vector2(10, 10);
-            bodyMesh.forward = bodyMesh.forward.Rotate(1);
             Meshes.Add(bodyMesh);
             
             //Tower
@@ -45,12 +44,49 @@ namespace TankGame
             cannonMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
             Meshes.Add(cannonMesh);
 
-            return Meshes;
+            mesh = Meshes;
+            position = Vector2.Zero;
+            forward = new Vector2(1, 0);
+
+            TankGame.OnUpdate += Update;
         }
 
-        public override void Update()
+        public override void Update(float delta)
         {
-            
+            if (TankGame.game.Keyboard[Key.Left])
+                TurnTower(-1f * delta);
+            if (TankGame.game.Keyboard[Key.Right])
+                TurnTower(1f * delta);
+            float turnFloat = 0;
+            if (TankGame.game.Keyboard[Key.U]) turnFloat += 1f;
+            if (TankGame.game.Keyboard[Key.K]) turnFloat += 1f;
+            if (TankGame.game.Keyboard[Key.J]) turnFloat -= 1f;
+            if (TankGame.game.Keyboard[Key.I]) turnFloat -= 1f;
+
+            if (turnFloat != 0)
+                TurnHull(turnFloat * delta);
+            else if (TankGame.game.Keyboard[Key.U] && TankGame.game.Keyboard[Key.I])
+            {
+                MoveHull(1f*delta);
+            }
+            else if (TankGame.game.Keyboard[Key.J] && TankGame.game.Keyboard[Key.K])
+            {
+                MoveHull(-1f * delta);
+            }
         }
+
+        public void TurnTower(float radians)
+        {
+            mesh[1].Rotate(radians);
+            mesh[2].Rotate(radians);
+        }
+        public void TurnHull(float radians)
+        {
+            Rotate(radians);
+        }
+        public void MoveHull(float speed)
+        {
+            Translate(position + forward*speed);
+        }        
     }
 }
