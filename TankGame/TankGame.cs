@@ -79,7 +79,7 @@ namespace TankGame
         {
             Time.Init();
 
-            Tank tank       = new Tank(1, 1, 1);
+            Tank tank = new Tank(1, 1, 1, Vector2.Zero, new Vector2(1, 0), Color.Red);
 
             using (game)
             {       

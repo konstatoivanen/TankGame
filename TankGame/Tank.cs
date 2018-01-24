@@ -1,10 +1,8 @@
 ﻿using OpenTK;
 using OpenTK.Input;
-using System;
+using OpenTK.Graphics.OpenGL;
+using System.Drawing;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 
 namespace TankGame
@@ -22,46 +20,48 @@ namespace TankGame
         private float as_current; //aim speed current
         private float as_target; // aim speed target
 
-        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0)
+        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color)
         {
             List<Mesh> Meshes = new List<Mesh>();
 
-            Mesh bodyMesh = new Mesh(4);
-            bodyMesh.vertices[0] = new Vector2(-2, 1);
-            bodyMesh.vertices[1] = new Vector2(2, 1);
-            bodyMesh.vertices[2] = new Vector2(2, -1);
-            bodyMesh.vertices[3] = new Vector2(-2, -1);
-            bodyMesh.color = System.Drawing.Color.AliceBlue;
-            bodyMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
+            Mesh bodyMesh           = new Mesh(4);
+            bodyMesh.vertices[0]    = new Vector2(-2, 1);
+            bodyMesh.vertices[1]    = new Vector2(2, 1);
+            bodyMesh.vertices[2]    = new Vector2(2, -1);
+            bodyMesh.vertices[3]    = new Vector2(-2, -1);
             Meshes.Add(bodyMesh);
             
             //Tower
-            Mesh towerMesh = new Mesh(4);
-            towerMesh.vertices[0] = new Vector2(-.75f, .75f);
-            towerMesh.vertices[1] = new Vector2(.75f, .75f);
-            towerMesh.vertices[2] = new Vector2(.75f, -.75f);
-            towerMesh.vertices[3] = new Vector2(-.75f, -.75f);
-            towerMesh.color = System.Drawing.Color.AliceBlue;
-            towerMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
+            Mesh towerMesh          = new Mesh(4);
+            towerMesh.vertices[0]   = new Vector2(-.75f, .75f);
+            towerMesh.vertices[1]   = new Vector2(.75f, .75f);
+            towerMesh.vertices[2]   = new Vector2(.75f, -.75f);
+            towerMesh.vertices[3]   = new Vector2(-.75f, -.75f);
             Meshes.Add(towerMesh);
 
             //Cannon
-            Mesh cannonMesh = new Mesh(4);
-            cannonMesh.vertices[0] = new Vector2(.75f, .15f);
-            cannonMesh.vertices[1] = new Vector2(3, .15f);
-            cannonMesh.vertices[2] = new Vector2(3, -.15f);
-            cannonMesh.vertices[3] = new Vector2(.75f, -.15f);
-            cannonMesh.color = System.Drawing.Color.AliceBlue;
-            cannonMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
+            Mesh cannonMesh         = new Mesh(4);
+            cannonMesh.vertices[0]  = new Vector2(.75f, .15f);
+            cannonMesh.vertices[1]  = new Vector2(3, .15f);
+            cannonMesh.vertices[2]  = new Vector2(3, -.15f);
+            cannonMesh.vertices[3]  = new Vector2(.75f, -.15f);
             Meshes.Add(cannonMesh);
 
-            mesh        = Meshes;
-            position    = Vector2.Zero;
-            forward     = new Vector2(1, 0);
+            mesh            = Meshes;
+            forward         = direction;
+            position        = position0;
 
             acceleration    = acceleration0;
             aimAcceleration = aimAcceleration0;
             turnFactor      = turnFactor0;
+
+            for(int i = 0; i < mesh.Count; ++i)
+            {
+                mesh[i].position    = position0;
+                mesh[i].forward     = direction;
+                mesh[i].color       = color;
+                mesh[i].renderMode = PrimitiveType.LineLoop;
+            }
 
             TankGame.OnUpdate += Update;
         }
@@ -81,13 +81,7 @@ namespace TankGame
 
             LocomotionUpdate(Time.deltatime);
 
-            if (TankGame.game.Keyboard[Key.Enter])
-            {
-                Projectile proj = new Projectile(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
-                TankGame.AddMeshesToRenderStack(proj.mesh);
-                Explosion exp = new Explosion(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
-                TankGame.AddMeshesToRenderStack(exp.mesh);
-            }
+            if (TankGame.game.Keyboard[Key.Enter]) Fire();
         }
 
         private void LocomotionUpdate(float delta)
@@ -123,5 +117,12 @@ namespace TankGame
         {
             Translate(position + forward*speed);
         }        
+        private void Fire()
+        {
+			Projectile proj = new Projectile(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
+			TankGame.AddMeshesToRenderStack(proj.mesh);
+			Explosion exp = new Explosion(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
+			TankGame.AddMeshesToRenderStack(exp.mesh);
+        }
     }
 }

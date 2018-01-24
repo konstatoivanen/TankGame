@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using OpenTK.Input;
 
 namespace Utils
 {
@@ -122,6 +123,48 @@ namespace Utils
             for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(position + vertices[i].TransformPoint(right, forward));
 
             GL.End();
+        }
+    }
+
+    //Konsta
+    [System.Serializable]
+    public class InputScheme
+    {
+        public enum Preset { Player1, Player2 }
+
+        public Key leftUp;
+        public Key leftDown;
+        public Key rightUp;
+        public Key rightDown;
+
+        public Key rightTurn;
+        public Key leftTurn;
+
+        public Key fire;
+
+        public InputScheme(Preset p)
+        {
+            switch(p)
+            {
+                case Preset.Player1:
+                    leftUp      = Key.Keypad7;
+                    leftDown    = Key.Keypad4;
+                    rightUp     = Key.Keypad8;
+                    rightDown   = Key.Keypad5;
+                    rightTurn   = Key.Keypad6;
+                    leftTurn    = Key.Keypad9;
+                    fire        = Key.KeypadAdd;
+                    break;
+
+                case Preset.Player2:
+                    leftUp      = Key.Keypad7;
+                    leftDown    = Key.Keypad4;
+                    rightUp     = Key.Keypad8;
+                    rightDown   = Key.Keypad5;
+                    rightTurn   = Key.Keypad6;
+                    leftTurn    = Key.Keypad9;
+                    fire        = Key.KeypadAdd;
+            }
         }
     }
 
