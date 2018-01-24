@@ -54,7 +54,7 @@ namespace Utils
             }
         }
 
-        public abstract void Update(float delta);
+        public abstract void Update();
     }
 
     public class Mesh

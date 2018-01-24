@@ -32,6 +32,9 @@ Plan out project structure and classes as a team.
 Anssi:
 
 Konsta:
+-Added methods for float lerp, lerpunclamped & movetowards
+-Refined Tank controls (acceleration, single track turning, etc...)
+-Added a basic static Time class for easy access to time variables
 
 Lauri:
 - Basic controls

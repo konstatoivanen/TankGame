@@ -30,9 +30,9 @@ namespace TankGame
 
             TankGame.OnUpdate += Update;
         }
-        public override void Update(float delta)
+        public override void Update()
         {
-            Move(5f*delta);
+            Move(5f*Time.deltatime);
         }
         public void Move(float speed)
         {

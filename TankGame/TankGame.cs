@@ -7,26 +7,44 @@ using OpenTK.Input;
 using OpenTK.Graphics;
 using Utils;
 
+//Konsta
 namespace TankGame
 {
+    //Simple Static class for counting time
+    public static class Time
+    {
+        public  static float startTime;
+        public  static float timeSinceStartUp
+        {
+            get { return Environment.TickCount / 1000.0f; }
+        }
+        private static float lastTime;
+        public  static float deltatime;
+
+        public static void Init()
+        {
+            lastTime = timeSinceStartUp;
+        }
+        public static void UpdateTime()
+        {
+            deltatime = timeSinceStartUp - lastTime;
+            deltatime = Math.Max(0.01f, deltatime); //Min Frame deltatime
+            lastTime  = timeSinceStartUp;
+        }
+    }
+
     public class TankGame
     {
         private static int startTime = 0;
 
         public static GameWindow game = new GameWindow();
 
-        //Get time since start
-        private static float time
-        {
-            get { return Environment.TickCount / 1000.0f; }
-        }
-
         private static float aspectRatio
         {
             get { return (float)game.Width / game.Height; }
         }
 
-        public delegate void UpdateEvent(float delta);
+        public delegate void UpdateEvent();
         public static UpdateEvent OnUpdate; 
 
 
@@ -59,11 +77,12 @@ namespace TankGame
         [STAThread]
         public static void Main()
         {
-            float lastTime = time;
-            Tank tank = new Tank(1, 1, 1);
+            Time.Init();
+
+            Tank tank       = new Tank(1, 1, 1);
+
             using (game)
-            {
-                
+            {       
                 game.Load += (sender, e) =>
                 {
                     game.VSync = VSyncMode.On;
@@ -81,11 +100,7 @@ namespace TankGame
 
                 game.UpdateFrame += (sender, e) =>
                 {
-
-                    float curTime = time;
-                    float delta = curTime - lastTime;
-                    delta = Math.Max(0.01f, delta); //Min Frame deltatime
-                    lastTime = curTime;
+                    Time.UpdateTime();
 
                     //Dont simulate whe not focused
                     if (game.Focused)
@@ -93,7 +108,7 @@ namespace TankGame
                         //Display fps in the title
                         game.Title = "Tank Game";
 
-                        if(OnUpdate != null) OnUpdate(delta);
+                        if(OnUpdate != null) OnUpdate();
 
                         // demo controls
                         if (game.Keyboard[Key.Escape])

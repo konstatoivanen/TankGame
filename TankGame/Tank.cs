@@ -66,7 +66,7 @@ namespace TankGame
             TankGame.OnUpdate += Update;
         }
 
-        public override void Update(float delta)
+        public override void Update()
         {
             int axisL = TankGame.game.Keyboard[Key.Keypad7]? 1 : 0;
             if (TankGame.game.Keyboard[Key.Keypad4]) axisL -= 1;
@@ -79,7 +79,7 @@ namespace TankGame
 
             SetLocomotiontarget(axisL, axisR, axisT);
 
-            LocomotionUpdate(delta);
+            LocomotionUpdate(Time.deltatime);
 
             if (TankGame.game.Keyboard[Key.Enter])
             {
