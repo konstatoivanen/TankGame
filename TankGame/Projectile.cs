@@ -23,9 +23,9 @@ namespace TankGame
             mesh.Add(projectileMesh);
             Translate(pos);
             if(fwd.Y < 0)
-                Rotate(-MathShit.Angle(forward, fwd));
+                Rotate(-ExtensionMethods.Angle(forward, fwd));
             else
-                Rotate(MathShit.Angle(forward, fwd));
+                Rotate(ExtensionMethods.Angle(forward, fwd));
 
 
             TankGame.OnUpdate += Update;

@@ -31,7 +31,6 @@ namespace Utils
             TankGame.TankGame.OnUpdate += Update;
         }
 
-
         public void Translate(Vector2 destination)
         {
             if (mesh != null && mesh.Count > 0)
@@ -119,6 +118,7 @@ namespace Utils
 
     public static class ExtensionMethods
     {
+        //Konsta
         public static Vector2 Rotate(this Vector2 v, float radians)
         {
             float sin = (float)Math.Sin(radians);
@@ -138,10 +138,34 @@ namespace Utils
         {
             return new Vector2(-v.Y, v.X);
         }
-    }
+        public static float   Lerp(float a, float b, float t)
+        {
+            return a + (b - a) * t.Clamp01();
+        }
 
-    public class MathShit // Lauri
-    {
+        public static float   LerpUnclamped(float a, float b, float t)
+        {
+            return a + (b - a) * t;
+        }
+        public static float   Clamp01(this float f)
+        {
+            return f > 1 ? 1 : f < 0 ? 0 : f;
+        }
+        public static float   MoveTowards(float current, float target, float maxDelta)
+        {
+            float result;
+            if (Math.Abs(target - current) <= maxDelta)
+            {
+                result = target;
+            }
+            else
+            {
+                result = current + Math.Sign(target - current) * maxDelta;
+            }
+            return result;
+        }
+
+        //Lauri
         public static float CrossProduct(Vector2 v, Vector2 r)
         {
             return v.X * r.Y - v.Y * r.X;
@@ -152,6 +176,7 @@ namespace Utils
         }
     }
 
+    //Konsta
     public class ClockwiseComparer : IComparer
     {
         private Vector2 m_Origin;

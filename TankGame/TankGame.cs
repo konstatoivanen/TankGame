@@ -60,7 +60,7 @@ namespace TankGame
         public static void Main()
         {
             float lastTime = time;
-            Tank tank = new Tank();
+            Tank tank = new Tank(1, 1, 1);
             using (game)
             {
                 
