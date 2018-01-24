@@ -30,6 +30,8 @@ Plan out project structure and classes as a team.
 24/01/2018
 
 Anssi:
+- Physics
+- Added circle collision detection WIP
 
 Konsta:
 -Added methods for float lerp, lerpunclamped & movetowards
