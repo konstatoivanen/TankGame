@@ -73,6 +73,11 @@ namespace TankGame
             {
                 MoveHull(-1f * delta);
             }
+            if (TankGame.game.Keyboard[Key.Enter])
+            {
+                Projectile proj = new Projectile(mesh[2].position + mesh[2].forward*3.2f, mesh[2].forward);
+                TankGame.AddMeshesToRenderStack(proj.mesh);
+            }
         }
 
         public void TurnTower(float radians)

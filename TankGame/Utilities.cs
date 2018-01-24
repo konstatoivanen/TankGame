@@ -33,11 +33,15 @@ namespace Utils
 
 
         public void Translate(Vector2 destination)
-        {            
-            for (int i = 0; i < mesh.Count; i++)
+        {
+            if (mesh != null && mesh.Count > 0)
             {
-                mesh[i].position += destination - position;
+                for (int i = 0; i < mesh.Count; i++)
+                {
+                    mesh[i].position += destination - position;
+                }
             }
+            
             position = destination;
         }
         public void Rotate(float radians)
@@ -99,7 +103,7 @@ namespace Utils
         }
         public void Rotate(float radians)
         {
-            m_fwd = ExtensionMethods.Rotate(m_fwd, radians);
+            m_fwd = m_fwd.Rotate(radians);
         }
 
         public void Draw()
@@ -133,6 +137,18 @@ namespace Utils
         public static Vector2 GetNormal(this Vector2 v)
         {
             return new Vector2(-v.Y, v.X);
+        }
+    }
+
+    public class MathShit // Lauri
+    {
+        public static float CrossProduct(Vector2 v, Vector2 r)
+        {
+            return v.X * r.Y - v.Y * r.X;
+        }
+        public static float Angle(Vector2 v, Vector2 r)
+        {
+            return (float)Math.Acos(Vector2.Dot(v, r) / (v.Length * r.Length));
         }
     }
 

@@ -18,6 +18,15 @@ Lauri:
 
 - - -
 
+23/01/2018
+
+Plan out project structure and classes as a team.
+- Created BaseObject class
+- Added render stack
+- Created todo list (Physics, controls, etc..)
+
+- - -
+
 24/01/2018
 
 Anssi:
@@ -26,6 +35,9 @@ Konsta:
 
 Lauri:
 - Basic controls
-- Moving and rotating baseobjects
+- Moving and rotating BaseObjects
+- Projectile class
+- Spawning projectiles
+- Some utility math functions
 
 - - -
