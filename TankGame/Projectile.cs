@@ -12,7 +12,7 @@ namespace TankGame
     {
         public Projectile(Vector2 pos, Vector2 fwd)
         {
-            Mesh projectileMesh = new Mesh(4);
+            Mesh projectileMesh = new Mesh(4, this);
             projectileMesh.vertices[0] = new Vector2(-.3f, .2f);
             projectileMesh.vertices[1] = new Vector2(.3f, .2f);
             projectileMesh.vertices[2] = new Vector2(.3f, -.2f);
@@ -21,9 +21,10 @@ namespace TankGame
             projectileMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
             mesh = new List<Mesh>();
             mesh.Add(projectileMesh);
-            Translate(pos);
-            Rotate((fwd.Y < 0? -1: 1) * ExtensionMethods.Angle(forward, fwd));
+            position = pos;
             forward = fwd;
+
+            TankGame.AddMeshesToRenderStack(mesh);
 
             TankGame.OnUpdate += Update;
         }
@@ -35,12 +36,10 @@ namespace TankGame
             tickCount++;
             if (tickCount > maxLifeTime)
                 Destroy();
-
-
         }
         public void Move(float speed)
         {
-            Translate(position + forward * speed);
+            position += forward * speed;
         }
     }
 }

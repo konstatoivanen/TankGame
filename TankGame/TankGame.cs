@@ -23,7 +23,8 @@ namespace TankGame
 
         public static void Init()
         {
-            lastTime = timeSinceStartUp;
+            startTime = Environment.TickCount;
+            lastTime  = timeSinceStartUp;
         }
         public static void UpdateTime()
         {
@@ -35,13 +36,15 @@ namespace TankGame
 
     public class TankGame
     {
-        private static int startTime = 0;
-
         public static GameWindow game = new GameWindow();
 
         private static float aspectRatio
         {
             get { return (float)game.Width / game.Height; }
+        }
+        public static Vector2 battlefieldSize
+        {
+            get { return new Vector2(25 * aspectRatio, 25); }
         }
 
         public delegate void UpdateEvent();
@@ -76,17 +79,18 @@ namespace TankGame
         [STAThread]
         public static void Main()
         {
+
             Time.Init();
 
-            Tank tank = new Tank(1, 1, 1, Vector2.Zero, new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1));
-            Tank dank = new Tank(1, 1, 1, Vector2.One, new Vector2(1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2));
+            Tank tank = new Tank(1, 1, 1,-new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1));
+            Tank dank = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2));
 
             using (game)
             {       
                 game.Load += (sender, e) =>
                 {
                     game.VSync = VSyncMode.On;
-                    startTime = Environment.TickCount;
+                    game.Title = "Tank Game";
                 };
 
                 game.Resize += (sender, e) =>
@@ -98,20 +102,12 @@ namespace TankGame
                 {
                     Time.UpdateTime();
 
-                    //Dont simulate whe not focused
                     if (game.Focused)
                     {
-                        //Display fps in the title
-                        game.Title = "Tank Game";
-
                         if(OnUpdate != null) OnUpdate();
 
-                        // demo controls
                         if (game.Keyboard[Key.Escape])
-                        {
                             game.Exit();
-                        }
-
                     }
                 };
 
@@ -120,22 +116,20 @@ namespace TankGame
                     GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
                     #region PROJECTION MATRIX
-                    var projMat = Matrix4.CreateOrthographic(25 * aspectRatio, 25, 0.1f, 500);
+                    var projMat = Matrix4.CreateOrthographic(battlefieldSize.X, battlefieldSize.Y, 0.1f, 500);
                     GL.MatrixMode(MatrixMode.Projection);
                     GL.LoadMatrix(ref projMat);
                     #endregion
 
                     #region CAMERA MATRIX
                     GL.MatrixMode(MatrixMode.Modelview);
-                    var lookMat = Matrix4.LookAt(new Vector3(0, 0, -10), new Vector3(0, 0, 1), Vector3.UnitY);
-                    var modelMat = Matrix4.CreateRotationY(0);
-                    lookMat = modelMat * lookMat;
+                    var lookMat     = Matrix4.LookAt(new Vector3(0, 0, -10), new Vector3(0, 0, 1), Vector3.UnitY);
+                    var modelMat    = Matrix4.CreateRotationY(0);
+                    lookMat         = modelMat * lookMat;
                     GL.LoadMatrix(ref lookMat);
                     #endregion
 
                     for (int i = 0; i < m_meshList.Count; ++i) m_meshList[i].Draw();
-
-                    GL.End();
 
                     game.SwapBuffers();
                 };

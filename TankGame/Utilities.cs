@@ -10,58 +10,48 @@ namespace Utils
 {
     public abstract class BaseObject
     {
-        public  Vector2 position { get; set; }
+        public  Vector2 position;
         private Vector2 m_fwd = new Vector2(1, 0);
-        public  Vector2 forward  { get { return m_fwd; } set { m_fwd = value; m_fwd.Normalize(); } }
+        public  Vector2 forward
+        {
+            get { return m_fwd; }
+            set
+            {
+                value.Normalize();
+
+                //Automatically update potential mesh orientations
+                if (mesh != null && mesh.Count > 0)
+                    for (int i = 0; i < mesh.Count; ++i)
+                        mesh[i].forward = mesh[i].forward.Rotate(ExtensionMethods.Angle(forward, value));
+
+                m_fwd = value;
+            }
+        }
         public  Vector2 right    { get { return forward.GetNormal(); } }
 
         public List<Mesh> mesh { get; set; }
 
         public BaseObject(Vector2 p, Vector2 f)
         {
-            position = p;
-            m_fwd = f;
+            position    = p;
+            m_fwd       = f;
 
             TankGame.TankGame.OnUpdate += Update;
         }
         public BaseObject()
         {
-            position = Vector2.Zero;
-            m_fwd = new Vector2(1,0);
+            position    = Vector2.Zero;
+            m_fwd       = new Vector2(1,0);
 
             TankGame.TankGame.OnUpdate += Update;
         }
 
         public void Destroy()
         {
-            for (int i = 0; i < mesh.Count; i++)
-            {
+            for (int i = 0; i < mesh.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
-            }
-            TankGame.TankGame.OnUpdate -= Update;
-        }
 
-        public void Translate(Vector2 destination)
-        {
-            if (mesh != null && mesh.Count > 0)
-            {
-                for (int i = 0; i < mesh.Count; i++)
-                {
-                    mesh[i].position += destination - position;
-                }
-            }
-            
-            position = destination;
-        }
-        public void Rotate(float radians)
-        {
-            m_fwd = m_fwd.Rotate(radians);
-            if (mesh == null || mesh.Count <= 0)
-                return;
-            for (int i = 0; i < mesh.Count; i++)
-            {
-                mesh[i].forward = mesh[i].forward.Rotate(radians);
-            }
+            TankGame.TankGame.OnUpdate -= Update;
         }
 
         public abstract void Update();
@@ -72,44 +62,62 @@ namespace Utils
         public PrimitiveType renderMode;
         public Color         color;
 
-        public  Vector2     position { get; set; }
-        private Vector2     m_fwd = new Vector2(1, 0);
-        public  Vector2     forward  { get { return m_fwd; } set { m_fwd = value; m_fwd.Normalize(); } }
+        public  BaseObject  parent { get; set; }
+        public  Vector2     offset { get; set; }
+        public  Vector2     worldPosition
+        {
+            get { return parent.position + offset.TransformPoint(forward, right); }
+        }
+        private Vector2     m_fwd   = new Vector2(1, 0);
+        public  Vector2     forward
+        {
+            get
+            {
+                return m_fwd;
+            }
+            set
+            {
+                m_fwd = value;
+                m_fwd.Normalize();
+            }
+        }
         public  Vector2     right    { get { return forward.GetNormal(); } }
         public  Vector2[]   vertices { get; set; }
 
-        public Mesh(int vertexCount)
+        public Mesh(int vertexCount,    BaseObject p)
         {
-            vertices = new Vector2[vertexCount];
+            parent      = p;
+            vertices    = new Vector2[vertexCount];
         }
-        public Mesh(Vector2[] v, Color c, PrimitiveType t)
+        public Mesh(Vector2[] v,        BaseObject p, Color c, PrimitiveType t)
         {
-            vertices = v;
-            color = c;
-            renderMode = t;
+            parent      = p;
+            vertices    = v;
+            color       = c;
+            renderMode  = t;
         }
-        public Mesh(Vector2[] v, Color c)
+        public Mesh(Vector2[] v,        BaseObject p, Color c)
         {
-            vertices = v;
-            color = c;
-            renderMode = PrimitiveType.LineStrip;
+            parent      = p;
+            vertices    = v;
+            color       = c;
+            renderMode  = PrimitiveType.LineStrip;
         }
-        public Mesh(Vector2[] v, PrimitiveType t)
+        public Mesh(Vector2[] v,        BaseObject p, PrimitiveType t)
         {
-            vertices = v;
-            color = Color.White;
-            renderMode = t;
+            parent      = p;
+            vertices    = v;
+            color       = Color.White;
+            renderMode  = t;
         }
-        public Mesh(Vector2[] v)
+        public Mesh(Vector2[] v,        BaseObject p)
         {
-            vertices = v;
-            color = Color.White;
-            renderMode = PrimitiveType.LineStrip;
+            parent      = p;
+            vertices    = v;
+            color       = Color.White;
+            renderMode  = PrimitiveType.LineStrip;
         }
-        public void Translate(Vector2 destination)
-        {
-            position = destination;
-        }
+
         public void Rotate(float radians)
         {
             m_fwd = m_fwd.Rotate(radians);
@@ -120,7 +128,7 @@ namespace Utils
             GL.Begin(renderMode);
             GL.Color4(color);
 
-            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(position + vertices[i].TransformPoint(right, forward));
+            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(parent.position + (offset + vertices[i]).TransformPoint(right, forward));
 
             GL.End();
         }
@@ -163,7 +171,7 @@ namespace Utils
                     rightDown   = Key.S;
                     rightTurn   = Key.E;
                     leftTurn    = Key.R;
-                    fire        = Key.D;
+                    fire        = Key.Space;
                     break;
             }
         }
@@ -204,6 +212,10 @@ namespace Utils
         {
             return f > 1 ? 1 : f < 0 ? 0 : f;
         }
+        public static float   Clamp(float f, float min, float max)
+        {
+            return f < min ? min : f > max ? max : f;
+        }
         public static float   MoveTowards(float current, float target, float maxDelta)
         {
             float result;
@@ -223,9 +235,16 @@ namespace Utils
         {
             return v.X * r.Y - v.Y * r.X;
         }
-        public static float Angle(Vector2 v, Vector2 r)
+        public static float Angle(Vector2 from, Vector2 to)
         {
-            return (float)Math.Acos(Vector2.Dot(v, r) / (v.Length * r.Length));
+            Vector2 normalized  = from.Normalized();
+            Vector2 normalized2 = to.Normalized();
+
+            float num   = (float)Math.Acos(Clamp(Vector2.Dot(normalized, normalized2), -1f, 1f));
+
+            float num2  = Math.Sign(normalized.X * normalized2.Y - normalized.Y * normalized2.X);
+
+            return num * num2;
         }
     }
 

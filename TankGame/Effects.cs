@@ -1,9 +1,6 @@
 ﻿using OpenTK;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 
 namespace TankGame
@@ -18,19 +15,16 @@ namespace TankGame
         {
             Vector2[] verts = { new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0) };
             
-            Mesh ExplosionMesh = new Mesh(verts.Length);
+            Mesh ExplosionMesh = new Mesh(verts.Length, this);
             ExplosionMesh.vertices = verts;
             ExplosionMesh.color = System.Drawing.Color.OrangeRed;
             ExplosionMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.Quads;
             mesh = new List<Mesh>();
             mesh.Add(ExplosionMesh);
-            Translate(pos);
-            if (fwd.Y < 0)
-                Rotate(-ExtensionMethods.Angle(forward, fwd));
-            else
-                Rotate(ExtensionMethods.Angle(forward, fwd));
-            forward = fwd;
+            position    = pos;
+            forward     = fwd;
 
+            TankGame.AddMeshesToRenderStack(mesh);
 
             TankGame.OnUpdate += Update;
         }

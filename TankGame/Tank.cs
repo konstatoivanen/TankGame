@@ -26,7 +26,7 @@ namespace TankGame
         {
             List<Mesh> Meshes = new List<Mesh>();
 
-            Mesh bodyMesh           = new Mesh(4);
+            Mesh bodyMesh           = new Mesh(4, this);
             bodyMesh.vertices[0]    = new Vector2(-2, 1);
             bodyMesh.vertices[1]    = new Vector2(2, 1);
             bodyMesh.vertices[2]    = new Vector2(2, -1);
@@ -34,7 +34,7 @@ namespace TankGame
             Meshes.Add(bodyMesh);
             
             //Tower
-            Mesh towerMesh          = new Mesh(4);
+            Mesh towerMesh          = new Mesh(4, this);
             towerMesh.vertices[0]   = new Vector2(-.75f, .75f);
             towerMesh.vertices[1]   = new Vector2(.75f, .75f);
             towerMesh.vertices[2]   = new Vector2(.75f, -.75f);
@@ -42,7 +42,7 @@ namespace TankGame
             Meshes.Add(towerMesh);
 
             //Cannon
-            Mesh cannonMesh         = new Mesh(4);
+            Mesh cannonMesh         = new Mesh(4, this);
             cannonMesh.vertices[0]  = new Vector2(.75f, .15f);
             cannonMesh.vertices[1]  = new Vector2(3, .15f);
             cannonMesh.vertices[2]  = new Vector2(3, -.15f);
@@ -60,7 +60,6 @@ namespace TankGame
 
             for(int i = 0; i < mesh.Count; ++i)
             {
-                mesh[i].position    = position0;
                 mesh[i].forward     = direction;
                 mesh[i].color       = color;
                 mesh[i].renderMode = PrimitiveType.LineLoop;
@@ -100,11 +99,15 @@ namespace TankGame
             rts_current = ExtensionMethods.MoveTowards(rts_current, rts_target, acceleration * delta);
             as_current = ExtensionMethods.MoveTowards(as_current, as_target, aimAcceleration * delta);
 
-            TurnTower(as_current * delta);
+            //Rotate Tower
+            mesh[1].Rotate(as_current * delta);
+            mesh[2].Rotate(as_current * delta);
 
-            TurnHull((lts_current - rts_current) * delta * turnFactor);
+            //Rotate
+            forward = forward.Rotate((lts_current - rts_current) * delta * turnFactor);
 
-            MoveHull((lts_current + rts_current) * delta);
+            //Move
+            position += forward * (lts_current + rts_current) * delta;
         }
 
         public void SetLocomotiontarget(float tl, float tr, float t)
@@ -114,24 +117,11 @@ namespace TankGame
             as_target  = t;
         }
 
-        private void TurnTower(float radians)
-        {
-            mesh[1].Rotate(radians);
-            mesh[2].Rotate(radians);
-        }
-        private void TurnHull(float radians)
-        {
-            Rotate(radians);
-        }
-        private void MoveHull(float speed)
-        {
-            Translate(position + forward*speed);
-        }        
         private void Fire()
         {
-			Projectile proj = new Projectile(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
+			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
 			TankGame.AddMeshesToRenderStack(proj.mesh);
-			Explosion exp = new Explosion(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
+			Explosion exp = new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
 			TankGame.AddMeshesToRenderStack(exp.mesh);
         }
     }
