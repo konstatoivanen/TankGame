@@ -85,6 +85,8 @@ namespace TankGame
             {
                 Projectile proj = new Projectile(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
                 TankGame.AddMeshesToRenderStack(proj.mesh);
+                Explosion exp = new Explosion(mesh[2].position + mesh[2].forward * 3.2f, mesh[2].forward);
+                TankGame.AddMeshesToRenderStack(exp.mesh);
             }
         }
 

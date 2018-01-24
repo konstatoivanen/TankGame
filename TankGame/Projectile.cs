@@ -10,8 +10,8 @@ namespace TankGame
 {
     class Projectile : BaseObject //Lauri
     {
-        public Projectile(Vector2 pos, Vector2 fwd) // Vectors from parent
-        {         
+        public Projectile(Vector2 pos, Vector2 fwd)
+        {
             Mesh projectileMesh = new Mesh(4);
             projectileMesh.vertices[0] = new Vector2(-.3f, .2f);
             projectileMesh.vertices[1] = new Vector2(.3f, .2f);
@@ -22,21 +22,28 @@ namespace TankGame
             mesh = new List<Mesh>();
             mesh.Add(projectileMesh);
             Translate(pos);
-            if(fwd.Y < 0)
+            if (fwd.Y < 0)
                 Rotate(-ExtensionMethods.Angle(forward, fwd));
             else
                 Rotate(ExtensionMethods.Angle(forward, fwd));
-
+            forward = fwd;
 
             TankGame.OnUpdate += Update;
         }
+        int tickCount = 0;
+        int maxLifeTime = 1000;
         public override void Update()
         {
-            Move(5f*Time.deltatime);
+            Move(5f * Time.deltatime);
+            tickCount++;
+            if (tickCount > maxLifeTime)
+                Destroy();
+
+
         }
         public void Move(float speed)
         {
-            Translate(position + forward*speed);
+            Translate(position + forward * speed);
         }
     }
 }

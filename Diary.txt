@@ -42,5 +42,7 @@ Lauri:
 - Projectile class
 - Spawning projectiles
 - Some utility math functions
+- Effects
+- BaseObject.Destroy()
 
 - - -

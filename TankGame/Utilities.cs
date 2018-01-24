@@ -31,6 +31,15 @@ namespace Utils
             TankGame.TankGame.OnUpdate += Update;
         }
 
+        public void Destroy()
+        {
+            for (int i = 0; i < mesh.Count; i++)
+            {
+                TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
+            }
+            TankGame.TankGame.OnUpdate -= Update;
+        }
+
         public void Translate(Vector2 destination)
         {
             if (mesh != null && mesh.Count > 0)
