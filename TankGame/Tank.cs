@@ -13,6 +13,8 @@ namespace TankGame
         private float aimAcceleration;
         private float turnFactor;
 
+        InputScheme input;
+
         private float lts_current; //left track speed current
         private float rts_current; //right track speed current
         private float lts_target; //left track speed target
@@ -20,7 +22,7 @@ namespace TankGame
         private float as_current; //aim speed current
         private float as_target; // aim speed target
 
-        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color)
+        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color, InputScheme input0)
         {
             List<Mesh> Meshes = new List<Mesh>();
 
@@ -54,6 +56,7 @@ namespace TankGame
             acceleration    = acceleration0;
             aimAcceleration = aimAcceleration0;
             turnFactor      = turnFactor0;
+            input           = input0;
 
             for(int i = 0; i < mesh.Count; ++i)
             {
@@ -63,25 +66,32 @@ namespace TankGame
                 mesh[i].renderMode = PrimitiveType.LineLoop;
             }
 
+            TankGame.AddMeshesToRenderStack(mesh);
+
             TankGame.OnUpdate += Update;
         }
 
         public override void Update()
         {
-            int axisL = TankGame.game.Keyboard[Key.Keypad7]? 1 : 0;
-            if (TankGame.game.Keyboard[Key.Keypad4]) axisL -= 1;
+            InputUpdate();
+            LocomotionUpdate(Time.deltatime);
+            //Physics stuff here
+        }
 
-            int axisR = TankGame.game.Keyboard[Key.Keypad8] ? 1 : 0;
-            if (TankGame.game.Keyboard[Key.Keypad5]) axisR -= 1;
+        private void InputUpdate()
+        {
+            int axisL = TankGame.game.Keyboard[input.leftUp] ? 1 : 0;
+            if (TankGame.game.Keyboard[input.leftDown]) axisL -= 1;
 
-            int axisT = TankGame.game.Keyboard[Key.Keypad9] ? 1 : 0;
-            if (TankGame.game.Keyboard[Key.Keypad6]) axisT -= 1;
+            int axisR = TankGame.game.Keyboard[input.rightUp] ? 1 : 0;
+            if (TankGame.game.Keyboard[input.rightDown]) axisR -= 1;
+
+            int axisT = TankGame.game.Keyboard[input.rightTurn] ? 1 : 0;
+            if (TankGame.game.Keyboard[input.leftTurn]) axisT -= 1;
 
             SetLocomotiontarget(axisL, axisR, axisT);
 
-            LocomotionUpdate(Time.deltatime);
-
-            if (TankGame.game.Keyboard[Key.Enter]) Fire();
+            if (TankGame.game.Keyboard[input.fire]) Fire();
         }
 
         private void LocomotionUpdate(float delta)

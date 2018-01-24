@@ -157,13 +157,14 @@ namespace Utils
                     break;
 
                 case Preset.Player2:
-                    leftUp      = Key.Keypad7;
-                    leftDown    = Key.Keypad4;
-                    rightUp     = Key.Keypad8;
-                    rightDown   = Key.Keypad5;
-                    rightTurn   = Key.Keypad6;
-                    leftTurn    = Key.Keypad9;
-                    fire        = Key.KeypadAdd;
+                    leftUp      = Key.Q;
+                    leftDown    = Key.A;
+                    rightUp     = Key.W;
+                    rightDown   = Key.S;
+                    rightTurn   = Key.E;
+                    leftTurn    = Key.R;
+                    fire        = Key.D;
+                    break;
             }
         }
     }
