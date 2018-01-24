@@ -51,7 +51,12 @@ namespace Utils
             for (int i = 0; i < mesh.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
 
-            TankGame.TankGame.OnUpdate -= Update;
+            TankGame.TankGame.OnUpdate -= Update;     
+        }
+
+        public void Rotate(float radians)
+        {
+            forward = forward.Rotate(radians);
         }
 
         public abstract void Update();
@@ -68,6 +73,7 @@ namespace Utils
         {
             get { return parent.position + offset.TransformPoint(forward, right); }
         }
+
         private Vector2     m_fwd   = new Vector2(1, 0);
         public  Vector2     forward
         {
@@ -82,12 +88,20 @@ namespace Utils
             }
         }
         public  Vector2     right    { get { return forward.GetNormal(); } }
+
         public  Vector2[]   vertices { get; set; }
 
         public Mesh(int vertexCount,    BaseObject p)
         {
             parent      = p;
             vertices    = new Vector2[vertexCount];
+        }
+        public Mesh(int vertexCount,    BaseObject p, Color c, PrimitiveType t)
+        {
+            parent      = p;
+            vertices    = new Vector2[vertexCount];
+            color       = c;
+            renderMode  = t;
         }
         public Mesh(Vector2[] v,        BaseObject p, Color c, PrimitiveType t)
         {
@@ -134,8 +148,7 @@ namespace Utils
         }
     }
 
-    //Konsta
-    [System.Serializable]
+    [Serializable]
     public class InputScheme
     {
         public enum Preset { Player1, Player2 }
@@ -179,7 +192,6 @@ namespace Utils
 
     public static class ExtensionMethods
     {
-        //Konsta
         public static Vector2 Rotate(this Vector2 v, float radians)
         {
             float sin = (float)Math.Sin(radians);
@@ -198,6 +210,10 @@ namespace Utils
         public static Vector2 GetNormal(this Vector2 v)
         {
             return new Vector2(-v.Y, v.X);
+        }
+        public static Vector2 MoveTowards(Vector2 current, Vector2 target, float maxDelta)
+        {
+            return new Vector2(MoveTowards(current.X, target.X, maxDelta), MoveTowards(current.Y, target.Y, maxDelta));
         }
         public static float   Lerp(float a, float b, float t)
         {
@@ -248,7 +264,6 @@ namespace Utils
         }
     }
 
-    //Konsta
     public class ClockwiseComparer : IComparer
     {
         private Vector2 m_Origin;

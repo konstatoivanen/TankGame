@@ -1,5 +1,4 @@
 ﻿using OpenTK;
-using OpenTK.Input;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Collections.Generic;
@@ -12,6 +11,8 @@ namespace TankGame
         private float acceleration;
         private float aimAcceleration;
         private float turnFactor;
+
+        private bool  triggerDownPrev;
 
         InputScheme input;
 
@@ -26,28 +27,14 @@ namespace TankGame
         {
             List<Mesh> Meshes = new List<Mesh>();
 
-            Mesh bodyMesh           = new Mesh(4, this);
-            bodyMesh.vertices[0]    = new Vector2(-2, 1);
-            bodyMesh.vertices[1]    = new Vector2(2, 1);
-            bodyMesh.vertices[2]    = new Vector2(2, -1);
-            bodyMesh.vertices[3]    = new Vector2(-2, -1);
-            Meshes.Add(bodyMesh);
-            
+            //Hull
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-2, 1), new Vector2(2, 1), new Vector2(2, -1), new Vector2(-2, -1) }, this));
+
             //Tower
-            Mesh towerMesh          = new Mesh(4, this);
-            towerMesh.vertices[0]   = new Vector2(-.75f, .75f);
-            towerMesh.vertices[1]   = new Vector2(.75f, .75f);
-            towerMesh.vertices[2]   = new Vector2(.75f, -.75f);
-            towerMesh.vertices[3]   = new Vector2(-.75f, -.75f);
-            Meshes.Add(towerMesh);
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-.75f, .75f), new Vector2(.75f, .75f), new Vector2(.75f, -.75f), new Vector2(-.75f, -.75f) }, this));
 
             //Cannon
-            Mesh cannonMesh         = new Mesh(4, this);
-            cannonMesh.vertices[0]  = new Vector2(.75f, .15f);
-            cannonMesh.vertices[1]  = new Vector2(3, .15f);
-            cannonMesh.vertices[2]  = new Vector2(3, -.15f);
-            cannonMesh.vertices[3]  = new Vector2(.75f, -.15f);
-            Meshes.Add(cannonMesh);
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(.75f, .15f), new Vector2(3, .15f), new Vector2(3, -.15f), new Vector2(.75f, -.15f) }, this));
 
             mesh            = Meshes;
             forward         = direction;
@@ -85,12 +72,17 @@ namespace TankGame
             int axisR = TankGame.game.Keyboard[input.rightUp] ? 1 : 0;
             if (TankGame.game.Keyboard[input.rightDown]) axisR -= 1;
 
-            int axisT = TankGame.game.Keyboard[input.rightTurn] ? 1 : 0;
-            if (TankGame.game.Keyboard[input.leftTurn]) axisT -= 1;
+            int axisT = TankGame.game.Keyboard[input.leftTurn] ? 1 : 0;
+            if (TankGame.game.Keyboard[input.rightTurn]) axisT -= 1;
 
             SetLocomotiontarget(axisL, axisR, axisT);
 
-            if (TankGame.game.Keyboard[input.fire]) Fire();
+            if(TankGame.game.Keyboard[input.fire] != triggerDownPrev)
+            {
+                triggerDownPrev = TankGame.game.Keyboard[input.fire];
+
+                if (triggerDownPrev) Fire();
+            }
         }
 
         private void LocomotionUpdate(float delta)
@@ -120,9 +112,7 @@ namespace TankGame
         private void Fire()
         {
 			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
-			TankGame.AddMeshesToRenderStack(proj.mesh);
-			Explosion exp = new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
-			TankGame.AddMeshesToRenderStack(exp.mesh);
+            Sparks exp = new Sparks(mesh[2].worldPosition + mesh[2].forward * 3.2f, 64, 4, new Vector2(0.05f, 1f), 1f); //new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
         }
     }
 }

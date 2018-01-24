@@ -1,9 +1,5 @@
 ﻿using OpenTK;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 
 namespace TankGame
@@ -17,7 +13,7 @@ namespace TankGame
             projectileMesh.vertices[1] = new Vector2(.3f, .2f);
             projectileMesh.vertices[2] = new Vector2(.3f, -.2f);
             projectileMesh.vertices[3] = new Vector2(-.3f, -.2f);
-            projectileMesh.color = System.Drawing.Color.Red;
+            projectileMesh.color = System.Drawing.Color.Orange;
             projectileMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
             mesh = new List<Mesh>();
             mesh.Add(projectileMesh);
@@ -32,7 +28,8 @@ namespace TankGame
         int maxLifeTime = 1000;
         public override void Update()
         {
-            Move(5f * Time.deltatime);
+            Move(15f * Time.deltatime);
+
             tickCount++;
             if (tickCount > maxLifeTime)
                 Destroy();
