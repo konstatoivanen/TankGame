@@ -48,3 +48,23 @@ Lauri:
 - BaseObject.Destroy()
 
 - - -
+
+30/01/2018
+
+Anssi:
+- Called in sick
+- Attempted to create a PhysicsUpdate(), got stumped
+
+Konsta:
+
+Lauri:
+
+- - -
+
+--/02/2018
+
+Anssi:
+
+Konsta:
+
+Lauri:
