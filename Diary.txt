@@ -56,8 +56,11 @@ Anssi:
 - Attempted to create a PhysicsUpdate(), got stumped
 
 Konsta:
+-Added extension methods for vector3 movetowards, color to vector3 and vector3 to color
+-Simplified Lauri's effects by utilisin previously mentioned methods
 
 Lauri:
+-Added MuzzleflashFire and MuzzleFlashSmoke effect classes 
 
 - - -
 

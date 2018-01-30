@@ -215,6 +215,10 @@ namespace Utils
         {
             return new Vector2(MoveTowards(current.X, target.X, maxDelta), MoveTowards(current.Y, target.Y, maxDelta));
         }
+        public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDelta)
+        {
+            return new Vector3(MoveTowards(current.X, target.X, maxDelta), MoveTowards(current.Y, target.Y, maxDelta), MoveTowards(current.Z, target.Z, maxDelta));
+        }
         public static float   Lerp(float a, float b, float t)
         {
             return a + (b - a) * t.Clamp01();
@@ -244,6 +248,18 @@ namespace Utils
                 result = current + Math.Sign(target - current) * maxDelta;
             }
             return result;
+        }
+        
+        public static Color   ToColor(this Vector3 v)
+        {
+            Vector3 v1 = v;
+            v1  *= 255;
+
+            return Color.FromArgb(1, (int)Math.Round(v1.X), (int)Math.Round(v1.X), (int)Math.Round(v1.X));
+        }
+        public static Vector3 ToVector(this Color c)
+        {
+            return new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
         }
 
         //Lauri
