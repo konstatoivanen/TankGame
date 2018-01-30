@@ -123,4 +123,128 @@ namespace TankGame
             }
         }
     }
+
+    public class MuzzleFlashSmoke : BaseObject
+    {
+        int tickCount = 0;
+        int lifeTime = 250;
+        Random random = new Random();
+        public MuzzleFlashSmoke(Vector2 pos, Vector2 fwd)
+        {
+            Mesh SmokeMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.DarkGray, PrimitiveType.Quads);                       
+            mesh = new List<Mesh>();
+            mesh.Add(SmokeMesh);
+
+            position = pos;
+
+            // Fixes mesh facing wrong way when tank spawns and hasn't rotated at all
+            SmokeMesh.forward = fwd;
+            //forward = fwd;
+
+            TankGame.AddMeshesToRenderStack(mesh);
+
+            TankGame.OnUpdate += Update;
+        }
+
+        public override void Update()
+        {
+            for (int i = 0; i < mesh[0].vertices.Length; i++)
+            {
+                mesh[0].vertices[i] = mesh[0].vertices[i] + new Vector2((float)random.NextDouble() - (float)random.NextDouble(), (float)random.NextDouble() - (float)random.NextDouble()) * 0.1f + new Vector2(1, 0) * 0.005f;
+            }
+            // Spaghetti
+            int alpha = 255 / lifeTime;
+            Color original = mesh[0].color;
+            int A = original.A, R = original.R, G = original.G, B = original.B;
+            if (tickCount < lifeTime / 4)
+            {
+                A += alpha * 2;
+                if (A > 255) A = 255;
+                R += alpha * 2;
+                if (R > 255) R = 255;
+                G += alpha * 2;
+                if (G > 255) G = 255;
+                B += alpha * 2;
+                if (B > 255) B = 255;
+            }
+            else
+            {
+                A -= (int)Math.Round(alpha*2f);
+                if (A < 0) A = 0;
+                R -= (int)Math.Round(alpha * 2f);
+                if (R < 0) R = 0;
+                G -= (int)Math.Round(alpha * 2f);
+                if (G < 0) G = 0;
+                B -= (int)Math.Round(alpha * 2f);
+                if (B < 0) B = 0;
+            }
+            mesh[0].color = Color.FromArgb(A, R, G, B);
+
+            tickCount++;
+            if (tickCount > lifeTime)
+                Destroy();
+        }
+    }
+    public class MuzzleFlashFire : BaseObject
+    {
+        int tickCount = 0;
+        int lifeTime = 150;
+        Random random = new Random();
+
+        public MuzzleFlashFire(Vector2 pos, Vector2 fwd)
+        {
+            Mesh MuzzleFlashMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.Orange, PrimitiveType.Quads);
+
+            mesh = new List<Mesh>();
+            mesh.Add(MuzzleFlashMesh);
+
+            position = pos;
+
+            // Fixes mesh facing wrong way when tank spawns and hasn't rotated at all
+            MuzzleFlashMesh.forward = fwd;
+            //forward = fwd;
+
+            TankGame.AddMeshesToRenderStack(mesh);
+
+            TankGame.OnUpdate += Update;
+        }
+
+        public override void Update()
+        {
+            for (int i = 0; i < mesh[0].vertices.Length; i++)
+            {
+                mesh[0].vertices[i] = mesh[0].vertices[i] + new Vector2((float)random.NextDouble() - (float)random.NextDouble(), (float)random.NextDouble() - (float)random.NextDouble()) * 0.05f + new Vector2(1, 0) * 0.01f;
+            }
+            // Spaghetti
+            int alpha = 255 / lifeTime;
+            Color original = mesh[0].color;
+            int A = original.A, R = original.R, G = original.G, B = original.B;
+            A -= alpha;
+            if (A < 0) A = 0;
+            R -= alpha;
+            if (R < 0) R = 0;
+            G -= alpha;
+            if (G < 0) G = 0;
+            B -= alpha;
+            if (B < 0) B = 0;
+            mesh[0].color = Color.FromArgb(A, R, G, B);
+
+            tickCount++;
+            if (tickCount > lifeTime)
+                Destroy();
+        }
+    }
+
+    public class MuzzleFlash
+    { 
+        public MuzzleFlash(Vector2 pos, Vector2 fwd)
+        {
+            MuzzleFlashSmoke smoke0 = new MuzzleFlashSmoke(pos - fwd * 0.5f, fwd.Rotate(0.4f));
+            MuzzleFlashSmoke smoke1 = new MuzzleFlashSmoke(pos - fwd * 0.5f, fwd.Rotate(-0.4f));
+            MuzzleFlashSmoke smoke2 = new MuzzleFlashSmoke(pos + fwd * 0.8f, fwd);
+            MuzzleFlashFire fire0 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(0.2f));
+            MuzzleFlashFire fire1 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(-0.2f));
+            MuzzleFlashFire fire2 = new MuzzleFlashFire(pos + fwd * 0.2f, fwd);
+        }
+    }
 }

@@ -37,6 +37,7 @@ namespace TankGame
         public void Move(float speed)
         {
             position += forward * speed;
+            // add collision detection
         }
     }
 }

@@ -74,6 +74,14 @@ namespace TankGame
 
             m_meshList.Remove(m);
         }
+        public static void RemoveMeshesFromRenderStack(List<Mesh> m)
+        {
+            for (int i = 0; i < m.Count; ++i)
+            {
+                if (m_meshList.Contains(m[i]))
+                    m_meshList.Remove(m[i]);
+            }             
+        }
         #endregion
 
         [STAThread]

@@ -112,7 +112,8 @@ namespace TankGame
         private void Fire()
         {
 			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
-            Sparks exp = new Sparks(mesh[2].worldPosition + mesh[2].forward * 3.2f, 64, 4, new Vector2(0.05f, 1f), 1f); //new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
+            //Sparks exp = new Sparks(mesh[2].worldPosition + mesh[2].forward * 3.2f, 64, 4, new Vector2(0.05f, 1f), 1f); //new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
+            MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
         }
     }
 }
