@@ -72,7 +72,8 @@ Lauri:
 Anssi:
 
 Konsta:
--Added extension methods: Random.Range, Random.OnUnitCircle & Random.OnScaledCircle
+-Added extension methods: Random.Range, Random.OnUnitCircle, Random.OnScaledCircle, Vector2 lerp
+-Added Initialize macro to BaseObject & Marked Destroy method as virtual to allow for overrides
 
 Lauri:
 -Added Debug.Log 

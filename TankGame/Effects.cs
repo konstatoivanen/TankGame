@@ -27,9 +27,7 @@ namespace TankGame
             position = pos;
             forward = fwd;
 
-            TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
 
         public override void Update()
@@ -96,9 +94,7 @@ namespace TankGame
 
             prevLength = count;
 
-            TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
 
         public override void Update()
@@ -147,9 +143,7 @@ namespace TankGame
             //Convert color to vector3
             colorCurrent = SmokeMesh.color.ToVector();
 
-            TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
 
         public override void Update()
@@ -193,9 +187,7 @@ namespace TankGame
 
             colorCurrent = MuzzleFlashMesh.color.ToVector();
 
-            TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
 
         public override void Update()
@@ -240,7 +232,7 @@ namespace TankGame
 
         public ExplodeLineLoopToDots(Mesh _mesh, int countPerLine)
         {
-            for (int i = 0; i < _mesh.vertices.Length; i++)
+            for (int i = 0; i < _mesh.vertices.Length; ++i)
             {
                 points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[i < _mesh.vertices.Length -1? i + 1 : 0], countPerLine));
                 count += countPerLine;
@@ -249,8 +241,8 @@ namespace TankGame
             {
                 dots = new List<Sparks.Dot>();
 
-                for (int i = 0; i < points.Count; i++)
-                    for (int e = 0; e < points[i].Length; e++)
+                for (int i = 0; i < points.Count; ++i)
+                    for (int e = 0; e < points[i].Length; ++e)
                         dots.Add(new Sparks.Dot(points[i][e], random.OnScaledCircle(-2, 2), random.Range(2, 5), 1));
 
                 mesh = new List<Mesh>();
@@ -258,9 +250,8 @@ namespace TankGame
                 mesh.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
                 position        = _mesh.worldPosition;
                 mesh[0].forward = _mesh.forward;
-                TankGame.AddMeshesToRenderStack(mesh);
 
-                TankGame.OnUpdate += Update;
+                Initialize();
             }
         }            
 

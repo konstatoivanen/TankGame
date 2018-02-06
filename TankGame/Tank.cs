@@ -52,9 +52,10 @@ namespace TankGame
                 mesh[i].renderMode = PrimitiveType.LineLoop;
             }
 
-            TankGame.AddMeshesToRenderStack(mesh);
+            //DebugLine
+            mesh.Add(new Mesh(new Vector2[2] { new Vector2(0, 0), forward * 10 }, this, Color.Beige, PrimitiveType.Lines));
 
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
 
         public override void Update()
@@ -80,11 +81,11 @@ namespace TankGame
             if(TankGame.game.Keyboard[input.fire] != triggerDownPrev)
             {
                 triggerDownPrev = TankGame.game.Keyboard[input.fire];
-
                 if (triggerDownPrev) Fire();
             }
+
             if (TankGame.game.Keyboard[OpenTK.Input.Key.Delete])
-                Explode();
+                Destroy();
         }
 
         private void LocomotionUpdate(float delta)
@@ -103,14 +104,12 @@ namespace TankGame
             //Move
             position += forward * (lts_current + rts_current) * delta;
         }
-
-        public void SetLocomotiontarget(float tl, float tr, float t)
+        public  void SetLocomotiontarget(float tl, float tr, float t)
         {
             lts_target = tl;
             rts_target = tr;
             as_target  = t;
         }
-
         private void Fire()
         {
 			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
@@ -118,13 +117,12 @@ namespace TankGame
             MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
         }
 
-        private void Explode()
+        public override void Destroy()
         {
             for (int i = 0; i < mesh.Count; i++)
-            {
                 new ExplodeLineLoopToDots(mesh[i], 100);
-            }
-            Destroy();
+
+            base.Destroy();
         }
     }
 }

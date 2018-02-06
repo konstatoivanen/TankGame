@@ -48,7 +48,14 @@ namespace Utils
             TankGame.TankGame.OnUpdate += Update;
         }
 
-        public void Destroy()
+        public virtual void Initialize()
+        {
+            if (mesh != null && mesh.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(mesh);
+
+            TankGame.TankGame.OnUpdate += Update;
+        }
+
+        public virtual void Destroy()
         {
             for (int i = 0; i < mesh.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
@@ -237,6 +244,10 @@ namespace Utils
         {
             return new Vector3(MoveTowards(current.X, target.X, maxDelta), MoveTowards(current.Y, target.Y, maxDelta), MoveTowards(current.Z, target.Z, maxDelta));
         }
+        public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
+        {
+            return new Vector2(Lerp(a.X, b.X, t.Clamp01()), Lerp(a.Y, b.Y, t.Clamp01()));
+        }
         public static float   Lerp(float a, float b, float t)
         {
             return a + (b - a) * t.Clamp01();
@@ -298,10 +309,10 @@ namespace Utils
         public static Vector2[] LineToDots(Vector2 start, Vector2 end, int count)
         {
             Vector2[] dots = new Vector2[count];
+
             for (int i = 0; i < count; i++)
-            {
-                dots[i] = start + (end - start) * ((float)i / (count - 1));
-            }
+                dots[i] = Lerp(start, end, (float)i / (count - 1));
+
             return dots;
         }
 
