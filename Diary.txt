@@ -37,6 +37,8 @@ Konsta:
 -Added methods for float lerp, lerpunclamped & movetowards
 -Refined Tank controls (acceleration, single track turning, etc...)
 -Added a basic static Time class for easy access to time variables
+-Embedded BaseObject rotation & position eiditing into position & rotation setters
+	-All inherited meshes are also transformed when the setters are used
 
 Lauri:
 - Basic controls
@@ -56,6 +58,7 @@ Anssi:
 - Attempted to create a PhysicsUpdate(), got stumped
 
 Konsta:
+-Dots explosion effect
 -Added extension methods for vector3 movetowards, color to vector3 and vector3 to color
 -Simplified Lauri's effects by utilisin previously mentioned methods
 
@@ -69,6 +72,7 @@ Lauri:
 Anssi:
 
 Konsta:
+-Added extension methods: Random.Range, Random.OnUnitCircle & Random.OnScaledCircle
 
 Lauri:
 -Added Debug.Log 

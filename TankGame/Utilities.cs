@@ -304,6 +304,19 @@ namespace Utils
             }
             return dots;
         }
+
+        public static float   Range(this Random r, float min, float max)
+        {
+            return Lerp(min, max, (float)r.NextDouble());
+        }
+        public static Vector2 OnUnitCircle(this Random r)
+        {
+            return new Vector2((float)r.NextDouble() - 0.5f, (float)r.NextDouble() - 0.5f).Normalized();
+        }
+        public static Vector2 OnScaledCircle(this Random r, float min, float max)
+        {
+            return OnUnitCircle(r) * Range(r, min, max);
+        }
     }
 
     public class ClockwiseComparer : IComparer

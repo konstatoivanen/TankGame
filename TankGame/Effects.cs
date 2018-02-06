@@ -36,7 +36,7 @@ namespace TankGame
         {
             for (int i = 0; i < mesh[0].vertices.Length; i++)
             {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + new Vector2((float)random.NextDouble() - (float)random.NextDouble(), (float)random.NextDouble() - (float)random.NextDouble()) * 0.4f + forward * 0.05f;
+                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.4f + forward * 0.05f;
             }
             tickCount++;
             if (tickCount > lifeTime)
@@ -59,11 +59,11 @@ namespace TankGame
 
             public Dot(Vector2 pos, Vector2 vel, float lt, float d)
             {
-                position = pos;
-                velocity = vel;
-                lifeTimeLeft = lt;
-                damping = d;
-                alive = true;
+                position        = pos;
+                velocity        = vel;
+                lifeTimeLeft    = lt;
+                damping         = d;
+                alive           = true;
             }
 
             public void Update(float delta)
@@ -71,9 +71,9 @@ namespace TankGame
                 if (!alive)
                     return;
 
-                position += velocity * delta;
-                lifeTimeLeft -= delta;
-                velocity = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
+                position        += velocity * delta;
+                lifeTimeLeft    -= delta;
+                velocity         = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
 
                 if (lifeTimeLeft <= 0) alive = false;
             }
@@ -88,7 +88,7 @@ namespace TankGame
 
             dots = new List<Dot>();
 
-            for (int i = 0; i < count; ++i) dots.Add(new Dot(pos, new Vector2(ExtensionMethods.Lerp(-maxSpeed, maxSpeed, (float)random.NextDouble()), ExtensionMethods.Lerp(-maxSpeed, maxSpeed, (float)random.NextDouble())), ExtensionMethods.Lerp(mimMaxLifeTime.X, mimMaxLifeTime.Y, (float)random.NextDouble()), damping));
+            for (int i = 0; i < count; ++i) dots.Add(new Dot(pos, random.OnScaledCircle(-maxSpeed, maxSpeed), random.Range(mimMaxLifeTime.X, mimMaxLifeTime.Y), damping));
 
             mesh = new List<Mesh>();
 
@@ -156,7 +156,7 @@ namespace TankGame
         {
             for (int i = 0; i < mesh[0].vertices.Length; i++)
             {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + new Vector2((float)random.NextDouble() - (float)random.NextDouble(), (float)random.NextDouble() - (float)random.NextDouble()) * 0.1f + new Vector2(1, 0) * 0.005f;
+                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
             }
 
             //Move current color towards 0
@@ -202,7 +202,7 @@ namespace TankGame
         {
             for (int i = 0; i < mesh[0].vertices.Length; i++)
             {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + new Vector2((float)random.NextDouble() - (float)random.NextDouble(), (float)random.NextDouble() - (float)random.NextDouble()) * 0.05f + new Vector2(1, 0) * 0.01f;
+                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
             }
 
             //Move current color towards 0
@@ -234,37 +234,29 @@ namespace TankGame
     {
         List<Vector2[]> points = new List<Vector2[]>();
         Random random = new Random();
-        float maxSpeed = 2f;
-        Vector2 mimMaxLifeTime = new Vector2(2, 5);
-        float damping = 1f;
         List<Sparks.Dot> dots;
         int count;
         private int prevLength;
+
         public ExplodeLineLoopToDots(Mesh _mesh, int countPerLine)
         {
             for (int i = 0; i < _mesh.vertices.Length; i++)
             {
-                if (i + 1 == _mesh.vertices.Length)
-                    points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[0], countPerLine));
-                else
-                    points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[i + 1], countPerLine));
+                points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[i < _mesh.vertices.Length -1? i + 1 : 0], countPerLine));
                 count += countPerLine;
             }
             if (points.Count > 0)
             {
                 dots = new List<Sparks.Dot>();
-                for (int i = 0; i < points.Count; i++)
-                {
-                    for (int e = 0; e < points[i].Length; e++)
-                    {
-                        dots.Add(new Sparks.Dot(points[i][e], new Vector2(ExtensionMethods.Lerp(-maxSpeed, maxSpeed, (float)random.NextDouble()), ExtensionMethods.Lerp(-maxSpeed, maxSpeed, (float)random.NextDouble())), ExtensionMethods.Lerp(mimMaxLifeTime.X, mimMaxLifeTime.Y, (float)random.NextDouble()), damping));
-                    }
 
-                }
+                for (int i = 0; i < points.Count; i++)
+                    for (int e = 0; e < points[i].Length; e++)
+                        dots.Add(new Sparks.Dot(points[i][e], random.OnScaledCircle(-2, 2), random.Range(2, 5), 1));
+
                 mesh = new List<Mesh>();
 
                 mesh.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
-                position = _mesh.worldPosition;
+                position        = _mesh.worldPosition;
                 mesh[0].forward = _mesh.forward;
                 TankGame.AddMeshesToRenderStack(mesh);
 
