@@ -163,7 +163,7 @@ namespace TankGame
             GL.Color3(Color.Green);
 
             GL.Vertex2(intersectionTest.point);
-            GL.Vertex2(intersectionTest.point + intersectionTest.normal);
+            GL.Vertex2(intersectionTest.point + ExtensionMethods.Reflect(player2.forward, intersectionTest.normal) * 2);
 
             GL.End();
 

@@ -414,6 +414,10 @@ namespace Utils
         {
             return new Vector2(Lerp(a.X, b.X, t.Clamp01()), Lerp(a.Y, b.Y, t.Clamp01()));
         }
+        public static Vector2 Reflect(Vector2 dir, Vector2 nor)
+        {
+            return -2f * Vector2.Dot(nor, dir) * nor + dir;
+        }
         public static float   Lerp(float a, float b, float t)
         {
             return a + (b - a) * t.Clamp01();
