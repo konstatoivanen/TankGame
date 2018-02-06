@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using Utils;
 
 namespace Physics
 {
@@ -11,12 +12,6 @@ namespace Physics
     {
         public Vector2 center;
         public float   radius;
-    }
-
-    public struct ContactPoint
-    {
-        public Vector2 point;
-        public Vector2 normal;
     }
 
     public class Physics

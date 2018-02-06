@@ -74,6 +74,8 @@ Anssi:
 Konsta:
 -Added extension methods: Random.Range, Random.OnUnitCircle, Random.OnScaledCircle, Vector2 lerp
 -Added Initialize macro to BaseObject & Marked Destroy method as virtual to allow for overrides
+-Added line & mesh intersection methods (returns either a contactpoint (point, normal) or just the intersection point)
+-Added worldspace vertices getter into mesh class
 
 Lauri:
 -Added Debug.Log 

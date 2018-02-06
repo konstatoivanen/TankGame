@@ -49,6 +49,10 @@ namespace TankGame
         public delegate void UpdateEvent();
         public static UpdateEvent OnUpdate;
 
+        public static Tank player1;
+        public static Tank player2;
+        public static ContactPoint intersectionTest = new ContactPoint();
+
         #region renderStack Variables
         private static List<Mesh> m_meshList = new List<Mesh>();      
         public  static void AddMeshToRenderStack(Mesh m)
@@ -105,8 +109,11 @@ namespace TankGame
 
             Time.Init();
 
-            Tank tank = new Tank(1, 1, 1, -new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1));
-            Tank dank = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2));
+            player1 = new Tank(1, 1, 1, -new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1));
+            player2 = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2));
+
+            //Tank tank = new Tank(1, 1, 1, -new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1));
+            //Tank dank = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2));
         }
         private static void Resize()
         {
@@ -117,15 +124,18 @@ namespace TankGame
         {
             Time.UpdateTime();
 
-            if (game.Focused)
-            {
-                if (OnUpdate != null) OnUpdate();
+            if (!game.Focused)
+                return;
 
-                if (game.Keyboard[Key.Escape])
-                    game.Exit();
+            if (OnUpdate != null)
+                OnUpdate();
 
-                Debug.UpdateLog();
-            }
+            ExtensionMethods.MeshIntersection(player1.mesh[0], player2.position, player2.forward * 10, ref intersectionTest);
+
+            if (game.Keyboard[Key.Escape])
+                game.Exit();
+
+            Debug.UpdateLog();        
         }
         private static void RenderFrame()
         {
@@ -146,6 +156,16 @@ namespace TankGame
             #endregion
 
             for (int i = 0; i < m_meshList.Count; ++i) m_meshList[i].Draw();
+
+            //Debug Square
+            GL.Begin(PrimitiveType.Lines);
+
+            GL.Color3(Color.Green);
+
+            GL.Vertex2(intersectionTest.point);
+            GL.Vertex2(intersectionTest.point + intersectionTest.normal);
+
+            GL.End();
 
             game.SwapBuffers();
         }

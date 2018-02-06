@@ -99,6 +99,17 @@ namespace Utils
         public  Vector2     right    { get { return forward.GetNormal(); } }
 
         public  Vector2[]   vertices { get; set; }
+        public  Vector2[]   verticesWorlSpace
+        {
+            get
+            {
+                Vector2[] v = new Vector2[vertices.Length];
+
+                for (int i = 0; i < v.Length; ++i) v[i] = TransformPoint(vertices[i]);
+
+                return v;
+            }
+        }
 
         public Mesh(int vertexCount,    BaseObject p)
         {
@@ -145,15 +156,19 @@ namespace Utils
         {
             m_fwd = m_fwd.Rotate(radians);
         }
-
         public void Draw()
         {
             GL.Begin(renderMode);
             GL.Color4(color);
 
-            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(parent.position + (offset + vertices[i]).TransformPoint(right, forward));
+            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(TransformPoint(vertices[i]));
 
             GL.End();
+        }
+
+        public Vector2 TransformPoint(Vector2 p)
+        {
+            return parent.position + (offset + p).TransformPoint(right, forward);
         }
     }
 
@@ -215,8 +230,159 @@ namespace Utils
         }
     }
 
+    public struct ContactPoint
+    {
+        public Vector2 point;
+        public Vector2 normal;
+
+        public ContactPoint(Vector2 p, Vector2 n)
+        {
+            point   = p;
+            normal  = n;
+        }
+    }
+
     public static class ExtensionMethods
     {
+        public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref Vector2 result)
+        {
+            Vector2[] v = m.verticesWorlSpace;
+
+            v = SortPolyClockwise(v);
+
+            bool    b   = false;
+            float   d0  = float.PositiveInfinity;
+            float   d1  = 0;
+            Vector2 cr  = Vector2.Zero;
+
+            for(int i = 0; i < m.vertices.Length; ++i)
+                if (LineIntersection(v[i], v[i == m.vertices.Length - 1 ? 0 : i + 1], point, point + dir, ref cr))
+                {
+                    d1 = (cr - point).LengthSquared;
+                    b  = true;
+
+                    //Find the closest intersection
+                    if (d1 > d0)
+                        continue;
+
+                    d0      = d1;
+                    result  = cr;
+                }      
+
+            return b;
+        }
+        public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref ContactPoint cp)
+        {
+            Vector2[] v = m.verticesWorlSpace;
+
+            v = SortPolyClockwise(v);
+
+            bool  b             = false;
+            float d0            = float.PositiveInfinity;
+            float d1            = 0;
+            ContactPoint cp1    = new ContactPoint();
+
+            for (int i = 0; i < m.vertices.Length; ++i)
+                if (LineIntersection(v[i], v[i == m.vertices.Length - 1 ? 0 : i + 1], point, point + dir, ref cp1))
+                {
+                    d1 = (cp1.point - point).LengthSquared;
+                    b = true;
+
+                    //Find the closest intersection
+                    if (d1 > d0)
+                        continue;
+
+                    d0 = d1;
+                    cp = cp1;
+                }
+
+            return b;
+        }
+        public static bool      LineIntersection(Vector2 a0, Vector2 a1, Vector2 b0, Vector2 b1, ref Vector2 point)
+        {
+            float d0 = DistanceFromPlaneDir(a0 - a1, a0, b0);
+            float d1 = DistanceFromPlaneDir(a0 - a1, a0, b1);
+
+            //both points are on either side of the line normal
+            if ((d0 > 0 && d1 > 0) || (d0 < 0 && d1 < 0))
+                return false;
+
+            Vector2 x   = Lerp(b0, b1, Math.Abs(d0) / (Math.Abs(d0) + Math.Abs(d1)));
+            Vector2 c   = Lerp(a0, a1, 0.5f);
+                    d1  = (a0 - a1).Length / 2;
+
+            //Distance from center of line a
+            d0 = DistanceFromPlaneNor(a0 - a1, c, x);
+            d0 = Math.Abs(d0);
+
+            //If distance from line center is greater than its half extent there was no intersection
+            if (d0 > d1)
+                return false;
+
+            point = x;
+
+            return true;
+        }
+        public static bool      LineIntersection(Vector2 a0, Vector2 a1, Vector2 b0, Vector2 b1, ref ContactPoint cp)
+        {
+            float d0 = DistanceFromPlaneDir(a0 - a1, a0, b0);
+            float d1 = DistanceFromPlaneDir(a0 - a1, a0, b1);
+
+            //both points are on either side of the line normal
+            if ((d0 > 0 && d1 > 0) || (d0 < 0 && d1 < 0))
+                return false;
+
+            Vector2 x = Lerp(b0, b1, Math.Abs(d0) / (Math.Abs(d0) + Math.Abs(d1)));
+            Vector2 c = Lerp(a0, a1, 0.5f);
+            d1 = (a0 - a1).Length / 2;
+
+            //Distance from center of line a
+            d0 = DistanceFromPlaneNor(a0 - a1, c, x);
+            d0 = Math.Abs(d0);
+
+            //If distance from line center is greater than its half extent there was no intersection
+            if (d0 > d1)
+                return false;
+
+            cp = new ContactPoint(x, (a1 - a0).GetNormal().Normalized());
+
+            return true;
+        }
+        public static float     DistanceFromPlaneDir(Vector2 planeDir, Vector2 planePoint, Vector2 point)
+        {
+            planeDir = new Vector2(-planeDir.Y, planeDir.X);
+            planeDir.Normalize();
+            return Vector2.Dot(planeDir, point - planePoint);
+        }
+        public static float     DistanceFromPlaneNor(Vector2 planeNormal, Vector2 planePoint, Vector2 point)
+        {
+            return Vector2.Dot(planeNormal.Normalized(), point - planePoint);
+        }
+        public static Vector2[] SortPolyClockwise(Vector2[] v)
+        {
+            Vector2 c = GetPolyCenter(v);
+            Array.Sort(v, new ClockwiseComparer(c));
+            return v;
+        }
+        public static Vector2[] SortPolyClockwise(Vector2[] v, Vector2 c)
+        {
+            Array.Sort(v, new ClockwiseComparer(c));
+            return v;
+        }
+        public static Vector2   GetPolyCenter(Vector2[] points)
+        {
+            if (points.Length == 0) return default(Vector2);
+            if (points.Length < 2)  return points[0];
+
+            Vector2 center = Vector2.Zero;
+
+            for (int i = 0; i < points.Length; i++) center += points[i];
+
+            center /= points.Length;
+
+            return center;
+        }
+
         public static Vector2 Rotate(this Vector2 v, float radians)
         {
             float sin = (float)Math.Sin(radians);
@@ -291,11 +457,11 @@ namespace Utils
             return new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
         }
 
-        public static float CrossProduct(Vector2 v, Vector2 r)
+        public static float     CrossProduct(Vector2 v, Vector2 r)
         {
             return v.X * r.Y - v.Y * r.X;
         }
-        public static float Angle(Vector2 from, Vector2 to)
+        public static float     Angle(Vector2 from, Vector2 to)
         {
             Vector2 normalized  = from.Normalized();
             Vector2 normalized2 = to.Normalized();
