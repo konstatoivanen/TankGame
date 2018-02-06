@@ -83,6 +83,8 @@ namespace TankGame
 
                 if (triggerDownPrev) Fire();
             }
+            if (TankGame.game.Keyboard[OpenTK.Input.Key.Delete])
+                Explode();
         }
 
         private void LocomotionUpdate(float delta)
@@ -114,6 +116,15 @@ namespace TankGame
 			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
             //Sparks exp = new Sparks(mesh[2].worldPosition + mesh[2].forward * 3.2f, 64, 4, new Vector2(0.05f, 1f), 1f); //new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
             MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
+        }
+
+        private void Explode()
+        {
+            for (int i = 0; i < mesh.Count; i++)
+            {
+                new ExplodeLineLoopToDots(mesh[i], 100);
+            }
+            Destroy();
         }
     }
 }

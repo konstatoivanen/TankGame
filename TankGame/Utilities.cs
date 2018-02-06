@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using OpenTK.Input;
+using System.IO;
+using System.Text;
 
 namespace Utils
 {
@@ -190,6 +192,22 @@ namespace Utils
         }
     }
 
+    public static class Debug
+    {
+        static StringBuilder sb = new StringBuilder();
+        public static void UpdateLog()
+        {
+            if (sb.Length <= 0)
+                return;
+            File.AppendAllText(Directory.GetCurrentDirectory() + "/log.txt", sb.ToString());
+            sb.Clear();
+        }
+        public static void Log(String str)
+        {
+            sb.Append(str + System.Environment.NewLine);
+        }
+    }
+
     public static class ExtensionMethods
     {
         public static Vector2 Rotate(this Vector2 v, float radians)
@@ -262,7 +280,6 @@ namespace Utils
             return new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
         }
 
-        //Lauri
         public static float CrossProduct(Vector2 v, Vector2 r)
         {
             return v.X * r.Y - v.Y * r.X;
@@ -277,6 +294,15 @@ namespace Utils
             float num2  = Math.Sign(normalized.X * normalized2.Y - normalized.Y * normalized2.X);
 
             return num * num2;
+        }
+        public static Vector2[] LineToDots(Vector2 start, Vector2 end, int count)
+        {
+            Vector2[] dots = new Vector2[count];
+            for (int i = 0; i < count; i++)
+            {
+                dots[i] = start + (end - start) * ((float)i / (count - 1));
+            }
+            return dots;
         }
     }
 

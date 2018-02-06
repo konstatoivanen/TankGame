@@ -123,6 +123,8 @@ namespace TankGame
 
                 if (game.Keyboard[Key.Escape])
                     game.Exit();
+
+                Debug.UpdateLog();
             }
         }
         private static void RenderFrame()
