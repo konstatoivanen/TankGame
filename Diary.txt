@@ -80,3 +80,8 @@ Konsta:
 Lauri:
 -Added Debug.Log 
 -Added Tank explosion effect
+
+- - -
+
+07/02/2018
+Physics!
