@@ -51,6 +51,9 @@ namespace TankGame
         public delegate void UpdateEvent();
         public static UpdateEvent OnUpdate;
 
+        public delegate void RestartEvent();
+        public static RestartEvent OnRestart;
+
         public static Tank player1;
         public static Tank player2;
 
@@ -86,6 +89,15 @@ namespace TankGame
                 if (m_meshList.Contains(m[i]))
                     m_meshList.Remove(m[i]);
             }             
+        }
+
+        private static List<DebugMesh> m_debugMeshList = new List<DebugMesh>();
+        public static void DrawDebugMesh(DebugMesh m)
+        {
+            if (m_debugMeshList.Contains(m))
+                return;
+
+            m_debugMeshList.Add(m);
         }
         #endregion
 
@@ -130,9 +142,17 @@ namespace TankGame
 
             if (game.Keyboard[Key.Escape])
             {
-                // spaghett
                 System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/TankGame.exe");
                 Environment.Exit(0);
+                /*
+                if (OnRestart != null)
+                    OnRestart();
+
+                m_meshList.Clear();
+
+                GC.Collect();
+
+                Start();*/
             }
 
             Debug.UpdateLog();        
@@ -156,6 +176,8 @@ namespace TankGame
             #endregion
 
             for (int i = 0; i < m_meshList.Count; ++i) m_meshList[i].Draw();
+            for (int i = 0; i < m_debugMeshList.Count; ++i) m_debugMeshList[i].Draw();
+            m_debugMeshList.Clear();
 
             game.SwapBuffers();
         }

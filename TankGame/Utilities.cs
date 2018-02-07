@@ -8,6 +8,7 @@ using OpenTK.Input;
 using System.IO;
 using System.Text;
 using Physics;
+using TankGame;
 
 namespace Utils
 {
@@ -57,6 +58,7 @@ namespace Utils
             if (mesh != null && mesh.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(mesh);
 
             TankGame.TankGame.OnUpdate += Update;
+            TankGame.TankGame.OnRestart += Destroy;
         }
 
         public virtual void Destroy()
@@ -64,7 +66,8 @@ namespace Utils
             for (int i = 0; i < mesh.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
 
-            TankGame.TankGame.OnUpdate -= Update;
+            TankGame.TankGame.OnUpdate  -= Update;
+            TankGame.TankGame.OnRestart -= Destroy;
 
             if (collider != null) Physics.Physics.RemoveCollider(collider);
         }
@@ -177,6 +180,30 @@ namespace Utils
             return parent.position + (offset + p).TransformPoint(right, forward);
         }
     }
+    public class DebugMesh
+    {
+        public PrimitiveType RenderMode;
+        public Color Color;
+
+        public Vector2[] vertices { get; set; }
+
+        public DebugMesh(Vector2[] v, Color color, PrimitiveType renderMode)
+        {
+            vertices = v;
+            Color = color;
+            RenderMode = renderMode;
+        }
+
+        public void Draw()
+        {
+            GL.Begin(RenderMode);
+            GL.Color4(Color);
+
+            for (int i = 0; i < vertices.Length; ++i) GL.Vertex2(vertices[i]);
+
+            GL.End();
+        }
+    }
 
     [Serializable]
     public class InputScheme
@@ -233,6 +260,12 @@ namespace Utils
         public static void Log(String str)
         {
             sb.Append(str + System.Environment.NewLine);
+        }
+
+        public static void DrawLine(Vector2 origin, Vector2 end, Color color)
+        {
+            DebugMesh mesh = new DebugMesh(new Vector2[] { origin, end}, color, PrimitiveType.Lines);
+            TankGame.TankGame.DrawDebugMesh(mesh);
         }
     }
 

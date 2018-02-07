@@ -62,7 +62,6 @@ namespace TankGame
         {
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
-            //Physics stuff here
         }
 
         private void InputUpdate()
