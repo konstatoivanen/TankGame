@@ -84,4 +84,10 @@ Lauri:
 - - -
 
 07/02/2018
-Physics!
+-Collaborated on Physics class
+	-RayCast
+	-Collider class
+	-Physics layers & mask	
+-Projectile deflection on collision (if angle is low enough), otherwise explode
+-Spaghetti restart
+-Temporary Draw stack, Debug.DrawLine
