@@ -7,6 +7,7 @@ using OpenTK;
 using OpenTK.Input;
 using System.IO;
 using System.Text;
+using Physics;
 
 namespace Utils
 {
@@ -32,6 +33,7 @@ namespace Utils
         public  Vector2 right    { get { return forward.GetNormal(); } }
 
         public List<Mesh> mesh { get; set; }
+        public Collider collider;
 
         public BaseObject(Vector2 p, Vector2 f)
         {
@@ -50,6 +52,8 @@ namespace Utils
 
         public virtual void Initialize()
         {
+            if (collider != null) Physics.Physics.AddCollider(collider);
+
             if (mesh != null && mesh.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(mesh);
 
             TankGame.TankGame.OnUpdate += Update;
@@ -60,7 +64,9 @@ namespace Utils
             for (int i = 0; i < mesh.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
 
-            TankGame.TankGame.OnUpdate -= Update;     
+            TankGame.TankGame.OnUpdate -= Update;
+
+            if (collider != null) Physics.Physics.RemoveCollider(collider);
         }
 
         public void Rotate(float radians)

@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Collections.Generic;
 using Utils;
+using Physics;
 
 namespace TankGame
 {
@@ -23,7 +24,7 @@ namespace TankGame
         private float as_current; //aim speed current
         private float as_target; // aim speed target
 
-        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color, InputScheme input0)
+        public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color, InputScheme input0, PhysicsLayer layer)
         {
             List<Mesh> Meshes = new List<Mesh>();
 
@@ -52,8 +53,7 @@ namespace TankGame
                 mesh[i].renderMode = PrimitiveType.LineLoop;
             }
 
-            //DebugLine
-            mesh.Add(new Mesh(new Vector2[2] { new Vector2(0, 0), forward * 10 }, this, Color.Beige, PrimitiveType.Lines));
+            collider = new Collider(this, position, mesh[0], layer);
 
             Initialize();
         }
@@ -112,8 +112,7 @@ namespace TankGame
         }
         private void Fire()
         {
-			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
-            //Sparks exp = new Sparks(mesh[2].worldPosition + mesh[2].forward * 3.2f, 64, 4, new Vector2(0.05f, 1f), 1f); //new Explosion(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
+			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward, collider.Layer);
             MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
         }
 

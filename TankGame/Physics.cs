@@ -8,14 +8,73 @@ using Utils;
 
 namespace Physics
 {
-    public class CirlceCollider
+    public enum ColliderType
     {
+        Circle,
+        Box,
+        Mesh
+    }
+    [Flags]
+    public enum PhysicsLayer
+    {
+        Default,
+        Player1,
+        Player2        
+    }
+    public struct RayCastHit
+    {
+        public ContactPoint cp;
+        public Collider other;
+
+        public RayCastHit(ContactPoint _cp, Collider _other)
+        {
+            cp = _cp;
+            other = _other;
+        }
+    }
+
+    public class Collider
+    {
+        public ColliderType Type;
+        public PhysicsLayer Layer;
         public Vector2 center;
-        public float   radius;
+        public Vector2 extents;
+        public float radius;
+        public Mesh mesh;
+        public BaseObject parent;
+
+        //circle
+        public Collider(BaseObject p, Vector2 c, float rad, PhysicsLayer layer)
+        {
+            parent = p;
+            center = c;
+            radius = rad;
+            Type = ColliderType.Circle;
+            Layer = layer;
+        }
+        //box
+        public Collider(BaseObject p, Vector2 c, Vector2 ext, PhysicsLayer layer)
+        {
+            parent = p;
+            center = c;
+            extents = ext;
+            Type = ColliderType.Box;
+            Layer = layer;
+        }
+        //mesh
+        public Collider(BaseObject p, Vector2 c, Mesh m, PhysicsLayer layer)
+        {
+            parent = p;
+            center = c;
+            mesh = m;
+            Type = ColliderType.Mesh;
+            Layer = layer;
+        }
     }
 
     public class Physics
     {
+        /*
         public bool DetectCollision(CirlceCollider c1, CirlceCollider c2, ref ContactPoint cp)
         {
             //Axis-aligned bounding box
@@ -44,6 +103,68 @@ namespace Physics
                 //AABBs do not overlap
                 return false;
             }
+        }*/
+        #region physics Variables
+        private static List<Collider> m_colliderList = new List<Collider>();
+        public static void AddCollider(Collider c)
+        {
+            if (m_colliderList.Contains(c))
+                return;
+
+            m_colliderList.Add(c);
+        }
+        public static void RemoveCollider(Collider c)
+        {
+            if (!m_colliderList.Contains(c))
+                return;
+
+            m_colliderList.Remove(c);
+        }
+        #endregion
+        public static bool RayCast(Vector2 c, Vector2 d, PhysicsLayer mask, ref RayCastHit hit)
+        {
+            if (m_colliderList == null || m_colliderList.Count <= 0)
+                return false;
+
+            List<RayCastHit> hits = new List<RayCastHit>();
+
+            for (int i = 0; i < m_colliderList.Count; i++)
+            {
+                if (m_colliderList[i].Layer.HasFlag(mask))
+                    continue;
+                    
+                switch(m_colliderList[i].Type)
+                {
+                    case ColliderType.Mesh:
+
+                        if (ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref hit.cp))
+                            hits.Add(new RayCastHit(hit.cp, m_colliderList[i]));
+
+                        break;
+
+                    default: return false;
+                }
+            }
+            if (hits.Count <= 0)
+                return false;
+
+            float d0 = float.PositiveInfinity;
+            float d1;
+
+            for (int i = 0; i < hits.Count; i++)
+            {
+                d1 = (c - hits[i].cp.point).LengthSquared;
+
+                if (d1 > d0)
+                    continue;
+
+                d0 = d1;
+
+                hit = hits[i];
+            }
+
+            return true;
+
         }
     }
 }
