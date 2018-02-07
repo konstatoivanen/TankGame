@@ -45,12 +45,12 @@ namespace TankGame
         }
         public void PhysicsUpdate()
         {
-            if (!Physics.Physics.RayCast(previousPos, previousPos - position, Mask, ref Hit))
+            if (!Physics.Physics.RayCast(previousPos, position - previousPos, Mask, ref Hit))
                 return;
 
             Vector2 dir = (position - previousPos).Normalized();
             forward = ExtensionMethods.Reflect(dir, Hit.cp.normal);
-            position = Hit.cp.point + forward * 0.5f;
+            position = Hit.cp.point + forward * 0.05f;
             previousPos = position;
 
             Sparks s = new Sparks(Hit.cp.point, 64, 4, new Vector2(0.05f, 1f), 1f);

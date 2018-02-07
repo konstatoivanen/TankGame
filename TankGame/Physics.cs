@@ -121,6 +121,7 @@ namespace Physics
             m_colliderList.Remove(c);
         }
         #endregion
+
         public static bool RayCast(Vector2 c, Vector2 d, PhysicsLayer mask, ref RayCastHit hit)
         {
             if (m_colliderList == null || m_colliderList.Count <= 0)
@@ -128,31 +129,46 @@ namespace Physics
 
             List<RayCastHit> hits = new List<RayCastHit>();
 
-            for (int i = 0; i < m_colliderList.Count; i++)
+            float sign;
+
+            for (int i = 0; i < m_colliderList.Count; ++i)
             {
+                //Is the collider in the cast mask
                 if (m_colliderList[i].Layer.HasFlag(mask))
                     continue;
                     
+                //Collider specific intersection methods
                 switch(m_colliderList[i].Type)
                 {
                     case ColliderType.Mesh:
 
-                        if (ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref hit.cp))
-                            hits.Add(new RayCastHit(hit.cp, m_colliderList[i]));
+                        //Does the cast ray intersect with the collider
+                        if (!ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref hit.cp))
+                            break;
+
+                        //Contact point was inside the collider
+                        if (Vector2.Dot(hit.cp.point - ExtensionMethods.GetPolyCenter(m_colliderList[i].mesh.vertices), hit.cp.normal) > 0)
+                            break;
+
+                        hits.Add(new RayCastHit(hit.cp, m_colliderList[i]));
 
                         break;
 
                     default: return false;
                 }
             }
+
+            //Find the closest hit point
+
             if (hits.Count <= 0)
                 return false;
 
             float d0 = float.PositiveInfinity;
             float d1;
 
-            for (int i = 0; i < hits.Count; i++)
+            for (int i = 0; i < hits.Count; ++i)
             {
+
                 d1 = (c - hits[i].cp.point).LengthSquared;
 
                 if (d1 > d0)
