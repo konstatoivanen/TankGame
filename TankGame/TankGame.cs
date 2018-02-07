@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-using OpenTK.Graphics;
 using Utils;
-using Physics;
-using System.IO;
+using Utils.Physics;
 
 namespace TankGame
 {
@@ -115,6 +113,18 @@ namespace TankGame
         }
 
         #region UpdateMethods
+        private static void Restart()
+        {
+            if (OnRestart != null)
+                OnRestart();
+
+            m_meshList.Clear();
+            Physics.ClearColliders();
+
+            GC.Collect();
+
+            Start();
+        }
         private static void Start()
         {
             game.VSync = VSyncMode.On;
@@ -141,19 +151,10 @@ namespace TankGame
                 OnUpdate();
 
             if (game.Keyboard[Key.Escape])
-            {
-                System.Diagnostics.Process.Start(Directory.GetCurrentDirectory() + "/TankGame.exe");
-                Environment.Exit(0);
-                /*
-                if (OnRestart != null)
-                    OnRestart();
+                game.Exit();
 
-                m_meshList.Clear();
-
-                GC.Collect();
-
-                Start();*/
-            }
+            if (game.Keyboard[Key.Enter])
+                Restart();
 
             Debug.UpdateLog();        
         }
@@ -176,6 +177,7 @@ namespace TankGame
             #endregion
 
             for (int i = 0; i < m_meshList.Count; ++i) m_meshList[i].Draw();
+
             for (int i = 0; i < m_debugMeshList.Count; ++i) m_debugMeshList[i].Draw();
             m_debugMeshList.Clear();
 

@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Collections.Generic;
 using Utils;
-using Physics;
+using Utils.Physics;
 
 namespace TankGame
 {
@@ -82,9 +82,6 @@ namespace TankGame
                 triggerDownPrev = TankGame.game.Keyboard[input.fire];
                 if (triggerDownPrev) Fire();
             }
-
-            if (TankGame.game.Keyboard[OpenTK.Input.Key.Delete])
-                Destroy();
         }
 
         private void LocomotionUpdate(float delta)

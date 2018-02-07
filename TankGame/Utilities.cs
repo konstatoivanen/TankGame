@@ -1,14 +1,13 @@
-﻿using System;
-using System.Drawing;
+﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
+using Utils.Physics;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
-using OpenTK.Input;
+using System.Drawing;
 using System.IO;
 using System.Text;
-using Physics;
-using TankGame;
 
 namespace Utils
 {
@@ -36,19 +35,13 @@ namespace Utils
         public List<Mesh> mesh { get; set; }
         public Collider collider;
 
-        public BaseObject(Vector2 p, Vector2 f)
-        {
-            position    = p;
-            m_fwd       = f;
-
-            TankGame.TankGame.OnUpdate += Update;
-        }
         public BaseObject()
         {
             position    = Vector2.Zero;
             m_fwd       = new Vector2(1,0);
 
-            TankGame.TankGame.OnUpdate += Update;
+            TankGame.TankGame.OnUpdate  += Update;
+            TankGame.TankGame.OnRestart += Destroy;
         }
 
         public virtual void Initialize()
@@ -56,18 +49,15 @@ namespace Utils
             if (collider != null) Physics.Physics.AddCollider(collider);
 
             if (mesh != null && mesh.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.TankGame.OnUpdate += Update;
-            TankGame.TankGame.OnRestart += Destroy;
         }
 
         public virtual void Destroy()
         {
-            for (int i = 0; i < mesh.Count; ++i)
-                TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
-
             TankGame.TankGame.OnUpdate  -= Update;
             TankGame.TankGame.OnRestart -= Destroy;
+
+            for (int i = 0; i < mesh.Count; ++i)
+                TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
 
             if (collider != null) Physics.Physics.RemoveCollider(collider);
         }
@@ -189,9 +179,9 @@ namespace Utils
 
         public DebugMesh(Vector2[] v, Color color, PrimitiveType renderMode)
         {
-            vertices = v;
-            Color = color;
-            RenderMode = renderMode;
+            vertices    = v;
+            Color       = color;
+            RenderMode  = renderMode;
         }
 
         public void Draw()

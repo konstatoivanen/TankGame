@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 using System.Collections.Generic;
 using Utils;
-using Physics;
+using Utils.Physics;
 using System;
 
 namespace TankGame
@@ -25,13 +25,14 @@ namespace TankGame
             forward = fwd;
             Mask = mask;
 
-            TankGame.AddMeshesToRenderStack(mesh);
-
-            TankGame.OnUpdate += Update;
+            Initialize();
         }
+
+
         int tickCount = 0;
         int maxLifeTime = 1000;
         Vector2 previousPos;
+
         public override void Update()
         {
             previousPos = position;
@@ -45,7 +46,7 @@ namespace TankGame
         }
         public void PhysicsUpdate()
         {
-            if (!Physics.Physics.RayCast(previousPos, position - previousPos, Mask, ref Hit))
+            if (!Physics.RayCast(previousPos, position - previousPos, Mask, ref Hit))
                 return;
 
             Vector2 dir = (position - previousPos).Normalized();
@@ -66,6 +67,7 @@ namespace TankGame
         {
             for (int i = 0; i < mesh.Count; i++)
                 new ExplodeLineLoopToDots(mesh[i], 100);
+
             base.Destroy();
         }
         public void Move(float speed)

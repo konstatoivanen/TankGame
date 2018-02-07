@@ -1,27 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenTK;
-using Utils;
 
-namespace Physics
+namespace Utils.Physics
 {
-    public enum ColliderType
+    public enum     ColliderType
     {
         Circle,
         Box,
         Mesh
     }
     [Flags]
-    public enum PhysicsLayer
+    public enum     PhysicsLayer
     {
         Default,
         Player1,
         Player2        
     }
-    public struct RayCastHit
+    public struct   RayCastHit
     {
         public ContactPoint cp;
         public Collider other;
@@ -33,7 +29,7 @@ namespace Physics
         }
     }
 
-    public class Collider
+    public class    Collider
     {
         public ColliderType Type;
         public PhysicsLayer Layer;
@@ -72,7 +68,7 @@ namespace Physics
         }
     }
 
-    public class Physics
+    public class    Physics
     {
         /*
         public bool DetectCollision(CirlceCollider c1, CirlceCollider c2, ref ContactPoint cp)
@@ -106,19 +102,23 @@ namespace Physics
         }*/
         #region physics Variables
         private static List<Collider> m_colliderList = new List<Collider>();
-        public static void AddCollider(Collider c)
+        public  static void AddCollider(Collider c)
         {
             if (m_colliderList.Contains(c))
                 return;
 
             m_colliderList.Add(c);
         }
-        public static void RemoveCollider(Collider c)
+        public  static void RemoveCollider(Collider c)
         {
             if (!m_colliderList.Contains(c))
                 return;
 
             m_colliderList.Remove(c);
+        }
+        public  static void ClearColliders()
+        {
+            m_colliderList.Clear();
         }
         #endregion
 
