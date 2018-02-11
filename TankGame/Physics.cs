@@ -19,13 +19,13 @@ namespace Utils.Physics
     }
     public struct   RayCastHit
     {
-        public ContactPoint cp;
+        public ContactPoint contact;
         public Collider other;
 
-        public RayCastHit(ContactPoint _cp, Collider _other)
+        public RayCastHit(ContactPoint _contact, Collider _other)
         {
-            cp = _cp;
-            other = _other;
+            contact = _contact;
+            other   = _other;
         }
     }
 
@@ -127,9 +127,10 @@ namespace Utils.Physics
             if (m_colliderList == null || m_colliderList.Count <= 0)
                 return false;
 
-            List<RayCastHit> hits = new List<RayCastHit>();
-
-            float sign;
+            bool            r   = false;
+            ContactPoint    cp  = new ContactPoint();
+            float           d0  = float.PositiveInfinity;
+            float           d1;
 
             for (int i = 0; i < m_colliderList.Count; ++i)
             {
@@ -141,46 +142,36 @@ namespace Utils.Physics
                 switch(m_colliderList[i].Type)
                 {
                     case ColliderType.Mesh:
-
-                        //Does the cast ray intersect with the collider
-                        if (!ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref hit.cp))
-                            break;
+                        if (!ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref cp))
+                            continue;
 
                         //Contact point was inside the collider
-                        if (Vector2.Dot(hit.cp.point - ExtensionMethods.GetPolyCenter(m_colliderList[i].mesh.vertices), hit.cp.normal) > 0)
-                            break;
+                        if (Vector2.Dot(cp.point - ExtensionMethods.GetPolyCenter(m_colliderList[i].mesh.vertices), cp.normal) > 0)
+                            continue;
 
-                        hits.Add(new RayCastHit(hit.cp, m_colliderList[i]));
+                        break;
+
+                    case ColliderType.Circle:
+                        if (!ExtensionMethods.CircleIntersection(m_colliderList[i].center, m_colliderList[i].radius, c, d, ref cp))
+                            continue;
 
                         break;
 
                     default: return false;
                 }
-            }
 
-            //Find the closest hit point
+                d1 = (c - cp.point).LengthSquared;
 
-            if (hits.Count <= 0)
-                return false;
-
-            float d0 = float.PositiveInfinity;
-            float d1;
-
-            for (int i = 0; i < hits.Count; ++i)
-            {
-
-                d1 = (c - hits[i].cp.point).LengthSquared;
-
+                //Current hit is further away than last
                 if (d1 > d0)
                     continue;
 
-                d0 = d1;
-
-                hit = hits[i];
+                hit.contact = cp;
+                hit.other   = m_colliderList[i];
+                r           = true;
             }
 
-            return true;
-
+            return r;
         }
     }
 }

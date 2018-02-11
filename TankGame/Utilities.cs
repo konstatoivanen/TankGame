@@ -273,6 +273,56 @@ namespace Utils
 
     public static class ExtensionMethods
     {
+        public static bool      CircleIntersection(Vector2 center, float radius, Vector2 point, Vector2 dir, ref ContactPoint result)
+        {
+            //Line start is within circle
+            if ((center - point).LengthSquared < radius * radius)
+                return false;
+
+            Vector2 nDir    = dir.Normalized();
+            Vector2 nPoint  = Vector2.Dot(nDir, point - center) * nDir;
+            float   nDist   = (nPoint - center).LengthSquared;
+            float   sqrRad  = radius * radius;
+
+            if (nDist > sqrRad) //NO INTERSECTION 
+                return false;
+
+            nDist = (float)Math.Sqrt(sqrRad - nDist);
+
+            result.point    = nPoint - dir * nDist;
+            result.normal   = (result.point - center).Normalized();
+
+            return true;
+        }
+        /*public static bool MeshIntersection(Mesh m1, Mesh m2, ref List<ContactPoint> contacts)
+        {
+            Vector2[] v1 = m1.verticesWorlSpace;
+            Vector2[] v2 = m2.verticesWorlSpace;
+
+            v1 = SortPolyClockwise(v1);
+            v2 = SortPolyClockwise(v2);
+
+            bool b = false;
+            float d0 = float.PositiveInfinity;
+            float d1 = 0;
+            ContactPoint cp1 = new ContactPoint();
+
+            for (int i = 0; i < m.vertices.Length; ++i)
+                if (LineIntersection(v[i], v[i == m.vertices.Length - 1 ? 0 : i + 1], point, point + dir, ref cp1))
+                {
+                    d1 = (cp1.point - point).LengthSquared;
+                    b = true;
+
+                    //Find the closest intersection
+                    if (d1 > d0)
+                        continue;
+
+                    d0 = d1;
+                    cp = cp1;
+                }
+
+            return b;
+        }*/
         public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref Vector2 result)
         {
             Vector2[] v = m.verticesWorlSpace;
