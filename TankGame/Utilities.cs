@@ -37,6 +37,7 @@ namespace Utils
 
         public BaseObject()
         {
+            mesh = new List<Mesh>(); // avoid null reference
             position    = Vector2.Zero;
             m_fwd       = new Vector2(1,0);
 
@@ -79,7 +80,10 @@ namespace Utils
         public  Vector2     offset { get; set; }
         public  Vector2     worldPosition
         {
-            get { return parent.position + offset.TransformPoint(forward, right); }
+            get
+            {
+                return parent.position + offset.TransformPoint(forward, right);
+            }
         }
 
         private Vector2     m_fwd   = new Vector2(1, 0);

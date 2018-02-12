@@ -6,7 +6,7 @@ using System;
 
 namespace TankGame
 {
-    class Projectile : BaseObject //Lauri
+    class Projectile : BaseObject
     {
         public PhysicsLayer Mask;
         public RayCastHit Hit;
