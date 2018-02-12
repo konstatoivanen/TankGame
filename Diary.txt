@@ -91,3 +91,9 @@ Lauri:
 -Projectile deflection on collision (if angle is low enough), otherwise explode
 -Spaghetti restart
 -Temporary Draw stack, Debug.DrawLine
+
+12/02/2018
+
+Lauri:
+-Added map boundaries (very broken)
+-Added Debug.DrawNormals for drawing all normals of a Mesh.
