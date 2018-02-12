@@ -31,7 +31,6 @@ namespace TankGame
                     center += v[i];
                 }
                 center = center / v.Length;
-                Debug.Log("cb: " + center);
 
                 mesh = new List<Mesh>();
                 mesh.Add(new Mesh(v, p, PrimitiveType.LineLoop));
@@ -41,7 +40,8 @@ namespace TankGame
 
             public override void Update()
             {
-                Debug.DrawLine(Vector2.Zero, collider.center, Color.Red);
+                //Debug.DrawLine(Vector2.Zero, collider.center, Color.Red);
+                Debug.DrawNormals(mesh[0], Color.Red);
             }
         }
         
@@ -57,6 +57,13 @@ namespace TankGame
 
         public override void Update()
         {
+            /*for (int i = 0; i < Walls[0].mesh[0].vertices.Count(); i++)
+            {
+                if (i == Walls[0].mesh[0].vertices.Count() - 1)
+                    Debug.DrawLine((Walls[0].mesh[0].vertices[i] + Walls[0].mesh[0].vertices[0]) / 2, (Walls[0].mesh[0].vertices[i] - Walls[0].mesh[0].vertices[0]).GetNormal(), Color.Red);
+                else
+                    Debug.DrawLine((Walls[0].mesh[0].vertices[i] + Walls[0].mesh[0].vertices[i + 1]) / 2, (Walls[0].mesh[0].vertices[i] - Walls[0].mesh[0].vertices[i + 1]).GetNormal(), Color.Red);
+            }*/
         }
 
         public List<BaseObject> GenerateWalls()

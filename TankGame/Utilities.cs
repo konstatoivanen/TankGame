@@ -261,6 +261,29 @@ namespace Utils
             DebugMesh mesh = new DebugMesh(new Vector2[] { origin, end}, color, PrimitiveType.Lines);
             TankGame.TankGame.DrawDebugMesh(mesh);
         }
+        public static void DrawNormals(Mesh m, Color color)
+        {
+            Vector2[] normals = new Vector2[m.vertices.Length];
+            Vector2[] origins = new Vector2[m.vertices.Length];
+            
+            for (int i = 0; i < m.vertices.Length; i++)
+            {
+                if (i == m.vertices.Length - 1)
+                {
+                    normals[i] = (m.vertices[0] - m.vertices[i]).GetNormal();
+                    origins[i] = (m.vertices[i] + m.vertices[0]) / 2;
+                }
+                else
+                {
+                    normals[i] = (m.vertices[i+1] - m.vertices[i]).GetNormal();
+                    origins[i] = (m.vertices[i] + m.vertices[i+1]) / 2;
+                }
+                origins[i] += m.worldPosition;
+                normals[i].Normalize();
+
+                DrawLine(origins[i], origins[i] + normals[i], color);
+            }
+        }
     }
 
     public struct ContactPoint
