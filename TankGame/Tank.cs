@@ -62,6 +62,8 @@ namespace TankGame
         {
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
+
+            position += Physics.DepenetrationMesh(collider);
         }
 
         private void InputUpdate()

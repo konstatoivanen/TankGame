@@ -273,6 +273,66 @@ namespace Utils
 
     public static class ExtensionMethods
     {
+        public static void      IntersectingVertices(Mesh m1, Mesh m2, ref List<Vector2> m1v, ref List<Vector2> m2v)
+        {
+            Vector2[] v1 = m1.verticesWorlSpace;
+            Vector2[] v2 = m2.verticesWorlSpace;
+
+            v1 = SortPolyClockwise(v1);
+            v2 = SortPolyClockwise(v2);
+
+            Vector2 n;
+            Vector2 d;
+
+            int count = 0;
+
+            //Are any of the v1 vertices inside v2
+            for(int i = 0; i < v1.Length; ++i)
+            {
+                count = 0;
+
+                for(int j = 0; j < v2.Length; ++j)
+                {
+                    n = (v2[j] - v2[j == v2.Length -1? 0 : j+1]).Normalized();
+                    n = n.GetNormal();
+                    d = v1[i] - v2[j];
+
+                    if (Vector2.Dot(n, d) <= 0)
+                        continue;
+
+                    ++count;
+                }
+
+                if (count != v2.Length)
+                    continue;
+
+                m1v.Add(v1[i]);
+            }
+
+            //Are any of the v2 vertices inside v1
+            for (int i = 0; i < v2.Length; ++i)
+            {
+                count = 0;
+
+                for (int j = 0; j < v1.Length; ++j)
+                {
+                    n = (v1[j] - v1[j == v1.Length - 1 ? 0 : j + 1]).Normalized();
+                    n = n.GetNormal();
+                    d = v2[i] - v1[j];
+
+                    if (Vector2.Dot(n, d) <= 0)
+                        continue;
+
+                    ++count;
+                }
+
+                if (count != v1.Length)
+                    continue;
+
+                m2v.Add(v2[i]);
+            }
+        }
+
         public static bool      CircleIntersection(Vector2 center, float radius, Vector2 point, Vector2 dir, ref ContactPoint result)
         {
             //Line start is within circle
@@ -294,7 +354,7 @@ namespace Utils
 
             return true;
         }
-        /*public static bool MeshIntersection(Mesh m1, Mesh m2, ref List<ContactPoint> contacts)
+        public static bool      MeshIntersection(Mesh m1, Mesh m2, ref List<ContactPoint> contacts)
         {
             Vector2[] v1 = m1.verticesWorlSpace;
             Vector2[] v2 = m2.verticesWorlSpace;
@@ -302,27 +362,34 @@ namespace Utils
             v1 = SortPolyClockwise(v1);
             v2 = SortPolyClockwise(v2);
 
-            bool b = false;
-            float d0 = float.PositiveInfinity;
-            float d1 = 0;
-            ContactPoint cp1 = new ContactPoint();
+            Vector2 a0;
+            Vector2 a1;
+            Vector2 b0;
+            Vector2 b1;
+            bool r = false;
 
-            for (int i = 0; i < m.vertices.Length; ++i)
-                if (LineIntersection(v[i], v[i == m.vertices.Length - 1 ? 0 : i + 1], point, point + dir, ref cp1))
+            ContactPoint cp = new ContactPoint();
+
+            for (int i = 0; i < v1.Length; ++i)
+            {
+                a0 = v1[i];
+                a1 = v1[i == v1.Length - 1 ? 0 : i + 1];
+
+                for (int j = 0; j < v2.Length; ++j)
                 {
-                    d1 = (cp1.point - point).LengthSquared;
-                    b = true;
+                    b0 = v2[j];
+                    b1 = v2[j == v2.Length - 1 ? 0 : j + 1];
 
-                    //Find the closest intersection
-                    if (d1 > d0)
+                    if (!LineIntersection(a0, a1, b0, b1, ref cp))
                         continue;
 
-                    d0 = d1;
-                    cp = cp1;
+                    r = true;
+                    contacts.Add(cp);
                 }
+            }
 
-            return b;
-        }*/
+            return r;
+        }
         public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref Vector2 result)
         {
             Vector2[] v = m.verticesWorlSpace;
@@ -427,6 +494,7 @@ namespace Utils
 
             return true;
         }
+
         public static float     DistanceFromPlaneDir(Vector2 planeDir, Vector2 planePoint, Vector2 point)
         {
             planeDir = new Vector2(-planeDir.Y, planeDir.X);
@@ -437,6 +505,7 @@ namespace Utils
         {
             return Vector2.Dot(planeNormal.Normalized(), point - planePoint);
         }
+
         public static Vector2[] SortPolyClockwise(Vector2[] v)
         {
             Vector2 c = GetPolyCenter(v);
