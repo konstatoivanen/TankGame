@@ -150,7 +150,7 @@ namespace TankGame
             if (OnUpdate != null)
                 OnUpdate();
 
-            game.Title = "Tank Game : " + (1 / Time.deltatime).ToString();
+            //game.Title = "Tank Game : " + (1 / Time.deltatime).ToString();
 
             if (game.Keyboard[Key.Escape])
                 game.Exit();

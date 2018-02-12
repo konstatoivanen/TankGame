@@ -13,6 +13,9 @@ namespace TankGame
         private float aimAcceleration;
         private float turnFactor;
 
+        private ContactPoint collisionContact;
+        private Vector2 tempTest;
+
         private bool  triggerDownPrev;
 
         InputScheme input;
@@ -63,7 +66,17 @@ namespace TankGame
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
 
-            position += Physics.DepenetrationMesh(collider);
+            if (!Physics.CollisionMesh(collider, ref collisionContact))
+                return;
+
+            position += collisionContact.normal;
+
+            tempTest = position - (collisionContact.point - collisionContact.normal);
+            tempTest.Normalize();
+
+            float angle = ExtensionMethods.Angle(forward, tempTest);
+
+            forward = forward.Rotate(angle * Time.deltatime * 0.5f);
         }
 
         private void InputUpdate()

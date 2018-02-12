@@ -175,7 +175,7 @@ namespace Utils.Physics
             return r;
         }
 
-        public static Vector2 DepenetrationMesh(Collider c)
+        public static Vector2   DepenetrationMesh(Collider c)
         {
             if (c.Type != ColliderType.Mesh)
                 return Vector2.Zero;
@@ -196,8 +196,8 @@ namespace Utils.Physics
                     continue;
 
                 //Is the collider in the mask
-              //  if (m_colliderList[i].Layer.HasFlag(mask))
-             //       continue;
+                if (m_colliderList[i].Layer.HasFlag(c.Layer))
+                   continue;
 
                 //Do the meshes intersect?
                 if (!ExtensionMethods.MeshIntersection(c.mesh, m_colliderList[i].mesh, ref contacts))
@@ -207,10 +207,6 @@ namespace Utils.Physics
                 if (contacts.Count != 2)
                     continue;
 
-                //Debug Line
-                for (int j = 0; j < contacts.Count; ++j)
-                    Debug.DrawLine(contacts[j].point, contacts[j].point + contacts[j].normal, System.Drawing.Color.Green);
-
                 List<Vector2> p0 = new List<Vector2>();
                 List<Vector2> p1 = new List<Vector2>();
 
@@ -219,11 +215,10 @@ namespace Utils.Physics
                 if (p0.Count == 0 && p1.Count == 0)
                     continue;
 
-                Vector2 d = (contacts[1].point - contacts[0].point).Normalized();
-                Vector2 n = d.GetNormal();
-                Vector2 p = Vector2.Zero;
-                Vector2 n1 = Vector2.Zero;
-                Vector2 n2 = Vector2.Zero;
+                Vector2 d   = (contacts[1].point - contacts[0].point).Normalized();
+                Vector2 p   = Vector2.Zero;
+                Vector2 n1  = Vector2.Zero;
+                Vector2 n2  = Vector2.Zero;
 
                 float f0 = 0;
                 float f1 = 0;
@@ -232,16 +227,13 @@ namespace Utils.Physics
                     for(int j = 0; j < p0.Count; ++j)
                     {
                         p   = contacts[1].point + d * Vector2.Dot(d, p0[j] - contacts[1].point);
-                        f1  = (p - p0[j]).Length;
+                        f1  = (p - p0[j]).LengthSquared;
 
                         if (f1 < f0)
                             continue;
 
                         f0 = f1;
-
                         n1 = p0[j] - p;
-
-                        Debug.DrawLine(p, p0[j], System.Drawing.Color.Beige);
                     }
 
                 f1 = 0;
@@ -251,26 +243,122 @@ namespace Utils.Physics
                     for (int j = 0; j < p1.Count; ++j)
                     {
                         p   = contacts[1].point + d * Vector2.Dot(d, p1[j] - contacts[1].point);
-                        f1  = (p - p1[j]).Length;
+                        f1  = (p - p1[j]).LengthSquared;
 
                         if (f1 < f0)
                             continue;
 
                         f0 = f1;
-
                         n2 = p1[j] - p;
-
-                        Debug.DrawLine(p, p1[j], System.Drawing.Color.Beige);
                     }
 
+                p = n1 + n2;
+
                 //Avoid Nan vectors
-                if (float.IsNaN(n1.X + n1.Y + n2.X + n2.Y))
+                if (float.IsNaN(p.X + p.Y))
                     return Vector2.Zero;
 
-                return n1 + n2;
+                d  = (m_colliderList[i].parent.position - c.parent.position).Normalized();
+                p *= Math.Sign(-Vector2.Dot(p, d));
+
+                return p;
             }
 
             return Vector2.Zero;
+        }
+        public static bool      CollisionMesh(Collider c, ref ContactPoint result)
+        {
+            if (c.Type != ColliderType.Mesh)
+                return false;
+
+            if (m_colliderList == null || m_colliderList.Count <= 0)
+                return false;
+
+            List<ContactPoint> contacts = new List<ContactPoint>();
+
+            for (int i = 0; i < m_colliderList.Count; ++i)
+            {
+                //Collider is not a mesh
+                if (m_colliderList[i].Type != ColliderType.Mesh)
+                    continue;
+
+                //Dont test against self
+                if (m_colliderList[i] == c)
+                    continue;
+
+                //Is the collider in the mask
+                if (m_colliderList[i].Layer.HasFlag(c.Layer))
+                   continue;
+
+                //Do the meshes intersect?
+                if (!ExtensionMethods.MeshIntersection(c.mesh, m_colliderList[i].mesh, ref contacts))
+                    continue;
+
+                //Only solve collisions with 2 contact points
+                if (contacts.Count != 2)
+                    continue;
+
+                List<Vector2> p0 = new List<Vector2>();
+                List<Vector2> p1 = new List<Vector2>();
+
+                ExtensionMethods.IntersectingVertices(c.mesh, m_colliderList[i].mesh, ref p0, ref p1);
+
+                if (p0.Count == 0 && p1.Count == 0)
+                    continue;
+
+                Vector2 d   = (contacts[1].point - contacts[0].point).Normalized();
+                Vector2 p   = Vector2.Zero;
+                Vector2 n1  = Vector2.Zero;
+                Vector2 n2  = Vector2.Zero;
+
+                float f0 = 0;
+                float f1 = 0;
+
+                if(p0.Count > 0)
+                    for(int j = 0; j < p0.Count; ++j)
+                    {
+                        p   = contacts[1].point + d * Vector2.Dot(d, p0[j] - contacts[1].point);
+                        f1  = (p - p0[j]).LengthSquared;
+
+                        if (f1 < f0)
+                            continue;
+
+                        f0 = f1;
+                        n1 = p0[j] - p;
+                    }
+
+                f1 = 0;
+                f0 = 0;
+
+                if (p1.Count > 0)
+                    for (int j = 0; j < p1.Count; ++j)
+                    {
+                        p   = contacts[1].point + d * Vector2.Dot(d, p1[j] - contacts[1].point);
+                        f1  = (p - p1[j]).LengthSquared;
+
+                        if (f1 < f0)
+                            continue;
+
+                        f0 = f1;
+                        n2 = p1[j] - p;
+                    }
+
+                p = n1 + n2;
+
+                //Avoid Nan vectors
+                if (float.IsNaN(p.X + p.Y))
+                    return false;
+
+
+                d  = (m_colliderList[i].parent.position - c.parent.position).Normalized();
+                p *= Math.Sign(-Vector2.Dot(p, d));
+
+                result = new ContactPoint(ExtensionMethods.Lerp(contacts[0].point, contacts[1].point, 0.5f), p);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }
