@@ -70,7 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Effects.cs" />
-    <Compile Include="MapBounds.cs" />
     <Compile Include="Physics.cs" />
     <Compile Include="Projectile.cs" />
     <Compile Include="Utilities.cs" />

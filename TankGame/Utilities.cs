@@ -102,7 +102,7 @@ namespace Utils
         public  Vector2     right    { get { return forward.GetNormal(); } }
 
         public  Vector2[]   vertices { get; set; }
-        public  Vector2[]   verticesWorlSpace
+        public  Vector2[]   verticesWorldSpace
         {
             get
             {
@@ -265,25 +265,42 @@ namespace Utils
         {
             Vector2[] normals = new Vector2[m.vertices.Length];
             Vector2[] origins = new Vector2[m.vertices.Length];
+            Vector2[] v = m.verticesWorldSpace;
             
             for (int i = 0; i < m.vertices.Length; i++)
             {
                 if (i == m.vertices.Length - 1)
                 {
-                    normals[i] = (m.vertices[0] - m.vertices[i]).GetNormal();
-                    origins[i] = (m.vertices[i] + m.vertices[0]) / 2;
+                    normals[i] = (v[0] - v[i]).GetNormal();
+                    origins[i] = (v[i] + v[0]) / 2;
                 }
                 else
                 {
-                    normals[i] = (m.vertices[i+1] - m.vertices[i]).GetNormal();
-                    origins[i] = (m.vertices[i] + m.vertices[i+1]) / 2;
+                    normals[i] = (v[i+1] - v[i]).GetNormal();
+                    origins[i] = (v[i] + v[i+1]) / 2;
                 }
-                origins[i] += m.worldPosition;
                 normals[i].Normalize();
 
                 DrawLine(origins[i], origins[i] + normals[i], color);
             }
         }
+        public static void DrawBounds(Mesh m, Color color)
+        {
+            Bounds b = new Bounds(m);
+
+            DrawLine(b.topLeft, b.topRight, color);
+            DrawLine(b.topRight, b.bottomRight, color);
+            DrawLine(b.bottomRight, b.bottomLeft, color);
+            DrawLine(b.bottomLeft, b.topLeft, color);
+        }
+        public static void DrawBounds(Bounds b, Color color)
+        {
+            DrawLine(b.topLeft, b.topRight, color);
+            DrawLine(b.topRight, b.bottomRight, color);
+            DrawLine(b.bottomRight, b.bottomLeft, color);
+            DrawLine(b.bottomLeft, b.topLeft, color);
+        }
+
     }
 
     public struct ContactPoint
@@ -298,12 +315,102 @@ namespace Utils
         }
     }
 
+    public struct Bounds
+    {
+        public Vector2 center, extents;
+        public Vector2 topLeft
+        {
+            get
+            {
+                return center + extents;
+            }
+        }
+        public Vector2 bottomRight
+        {
+            get
+            {
+                return center - extents;
+            }
+        }
+        public Vector2 topRight
+        {
+            get
+            {
+                return center + new Vector2(-extents.X, extents.Y);
+            }
+        }
+        public Vector2 bottomLeft
+        {
+            get
+            {
+                return center + new Vector2(extents.X, -extents.Y);
+            }
+        }
+        public float Left
+        {
+            get
+            {
+                return topLeft.X;
+            }
+        }
+        public float Right
+        {
+            get
+            {
+                return topRight.X;
+            }
+        }
+        public float Top
+        {
+            get
+            {
+                return topLeft.Y;
+            }
+        }
+        public float Bottom
+        {
+            get
+            {
+                return bottomLeft.Y;
+            }
+        }
+
+        public Bounds(Mesh m)
+        {
+            Vector2[] v = m.verticesWorldSpace;
+            float minX = float.PositiveInfinity, maxX = float.NegativeInfinity, minY = float.PositiveInfinity, maxY = float.NegativeInfinity;
+
+            for (int i = 0; i < v.Length; i++)
+            {
+                if (v[i].X < minX)
+                    minX = v[i].X;
+
+                if (v[i].X > maxX)
+                    maxX = v[i].X;
+
+                if (v[i].Y > maxY)
+                    maxY = v[i].Y;
+
+                if (v[i].Y < minY)
+                    minY = v[i].Y;
+            }
+            center = new Vector2(ExtensionMethods.Lerp(minX, maxX, 0.5f), ExtensionMethods.Lerp(minY, maxY, 0.5f));
+            extents = new Vector2(maxX - minX, maxY - minY) * 0.5f;
+        }
+
+        public Bounds(Vector2 c, Vector2 ext)
+        {
+            center = c;
+            extents = ext;
+        }
+    }
+
     public static class ExtensionMethods
     {
         public static void      IntersectingVertices(Mesh m1, Mesh m2, ref List<Vector2> m1v, ref List<Vector2> m2v)
         {
-            Vector2[] v1 = m1.verticesWorlSpace;
-            Vector2[] v2 = m2.verticesWorlSpace;
+            Vector2[] v1 = m1.verticesWorldSpace;
+            Vector2[] v2 = m2.verticesWorldSpace;
 
             v1 = SortPolyClockwise(v1);
             v2 = SortPolyClockwise(v2);
@@ -359,6 +466,26 @@ namespace Utils
                 m2v.Add(v2[i]);
             }
         }
+        public static bool MapBoundsIntersection(Mesh m, ref Vector2 dep)
+        {
+            Bounds b = new Bounds(m);
+
+            Vector2 topLeft = TankGame.TankGame.battlefieldSize*0.5f;
+            Vector2 bottomRight = -topLeft;
+
+            float dL, dR, dT, dB;
+
+            dL = Math.Max(Math.Abs(b.Left) - Math.Abs(topLeft.X), 0); 
+            dR = Math.Max(Math.Abs(b.Right) - Math.Abs(bottomRight.X), 0);
+            dT = Math.Max(Math.Abs(b.Top) - Math.Abs(topLeft.Y), 0);
+            dB = Math.Max(Math.Abs(b.Bottom) - Math.Abs(bottomRight.Y), 0);
+
+            if (dL <= 0 && dR <= 0 && dT <= 0 && dB <= 0)
+                return false;
+
+            dep = new Vector2(-dL + dR, -dT + dB);
+            return true;
+        }
 
         public static bool      CircleIntersection(Vector2 center, float radius, Vector2 point, Vector2 dir, ref ContactPoint result)
         {
@@ -383,8 +510,8 @@ namespace Utils
         }
         public static bool      MeshIntersection(Mesh m1, Mesh m2, ref List<ContactPoint> contacts)
         {
-            Vector2[] v1 = m1.verticesWorlSpace;
-            Vector2[] v2 = m2.verticesWorlSpace;
+            Vector2[] v1 = m1.verticesWorldSpace;
+            Vector2[] v2 = m2.verticesWorldSpace;
 
             v1 = SortPolyClockwise(v1);
             v2 = SortPolyClockwise(v2);
@@ -419,7 +546,7 @@ namespace Utils
         }
         public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref Vector2 result)
         {
-            Vector2[] v = m.verticesWorlSpace;
+            Vector2[] v = m.verticesWorldSpace;
 
             v = SortPolyClockwise(v);
 
@@ -446,7 +573,7 @@ namespace Utils
         }
         public static bool      MeshIntersection(Mesh m, Vector2 point, Vector2 dir, ref ContactPoint cp)
         {
-            Vector2[] v = m.verticesWorlSpace;
+            Vector2[] v = m.verticesWorldSpace;
 
             v = SortPolyClockwise(v);
 

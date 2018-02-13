@@ -66,6 +66,10 @@ namespace TankGame
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
 
+            Vector2 temp = Vector2.Zero;
+            ExtensionMethods.MapBoundsIntersection(collider.mesh, ref temp);
+            position += temp;
+
             if (!Physics.CollisionMesh(collider, ref collisionContact))
                 return;
 
@@ -77,6 +81,7 @@ namespace TankGame
             float angle = ExtensionMethods.Angle(forward, tempTest);
 
             forward = forward.Rotate(angle * Time.deltatime * 0.5f);
+
         }
 
         private void InputUpdate()
