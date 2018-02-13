@@ -12,10 +12,6 @@ namespace TankGame
         private float acceleration;
         private float aimAcceleration;
         private float turnFactor;
-
-        private ContactPoint collisionContact;
-        private Vector2 depenetrationVector;
-
         private bool  triggerDownPrev;
 
         InputScheme input;
@@ -32,15 +28,18 @@ namespace TankGame
             List<Mesh> Meshes = new List<Mesh>();
 
             //Hull
-            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-2, 1), new Vector2(2, 1), new Vector2(2, -1), new Vector2(-2, -1) }, this));
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-2, 1), new Vector2(2, 1), new Vector2(2, -1), new Vector2(-2, -1) }, this, color, PrimitiveType.LineLoop));
+
+            //Forward Indicator
+            Meshes.Add(new Mesh(new Vector2[2] { new Vector2(1.75f, 1), new Vector2(1.75f, -1) }, this, color, PrimitiveType.Lines));
 
             //Tower
-            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-.75f, .75f), new Vector2(.75f, .75f), new Vector2(.75f, -.75f), new Vector2(-.75f, -.75f) }, this));
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(-.75f, .75f), new Vector2(.75f, .75f), new Vector2(.75f, -.75f), new Vector2(-.75f, -.75f) }, this, color, PrimitiveType.LineLoop));
 
             //Cannon
-            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(.75f, .15f), new Vector2(3, .15f), new Vector2(3, -.15f), new Vector2(.75f, -.15f) }, this));
+            Meshes.Add(new Mesh(new Vector2[4] { new Vector2(.75f, .15f), new Vector2(3, .15f), new Vector2(3, -.15f), new Vector2(.75f, -.15f) }, this, color, PrimitiveType.LineLoop));
 
-            mesh            = Meshes;
+            meshes          = Meshes;
             forward         = direction;
             position        = position0;
 
@@ -49,14 +48,10 @@ namespace TankGame
             turnFactor      = turnFactor0;
             input           = input0;
 
-            for(int i = 0; i < mesh.Count; ++i)
-            {
-                mesh[i].forward     = direction;
-                mesh[i].color       = color;
-                mesh[i].renderMode = PrimitiveType.LineLoop;
-            }
+            for(int i = 0; i < meshes.Count; ++i)
+                meshes[i].forward     = direction;
 
-            collider = new Collider(this, position, mesh[0], layer);
+            collider = new Collider(this, meshes[0], layer);
 
             Initialize();
         }
@@ -65,24 +60,8 @@ namespace TankGame
         {
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
-            PhysicsUpdate();
-        }
 
-        public void PhysicsUpdate()
-        {
-            depenetrationVector = Vector2.Zero;
-
-            if (!Physics.CollisionMesh(collider, ref collisionContact) && !ExtensionMethods.MapBoundsIntersection(collider.mesh, ref depenetrationVector))
-                return;
-
-            position += collisionContact.normal + depenetrationVector;
-
-            depenetrationVector += position - (collisionContact.point - collisionContact.normal);
-            depenetrationVector.Normalize();
-
-            float angle = ExtensionMethods.Angle(forward, depenetrationVector);
-
-            forward = forward.Rotate(angle * Time.deltatime * 0.5f);
+            Physics.CollisonSolve_Mesh(this, 0.5f * Time.deltatime);
         }
 
         private void InputUpdate()
@@ -104,6 +83,15 @@ namespace TankGame
                 if (triggerDownPrev) Fire();
             }
         }
+        private void Fire()
+        {
+            //Dont fire when the muzzle is inside a collider
+            if (Physics.PointMeshCollision(meshes[2].worldPosition + meshes[2].forward * 3.2f, collider.Layer))
+                return;
+
+            new Projectile(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward, 20, collider.Layer);
+            new MuzzleFlash(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward);
+        }
 
         private void LocomotionUpdate(float delta)
         {
@@ -112,8 +100,8 @@ namespace TankGame
             as_current = ExtensionMethods.MoveTowards(as_current, as_target, aimAcceleration * delta);
 
             //Rotate Tower
-            mesh[1].Rotate(as_current * delta);
-            mesh[2].Rotate(as_current * delta);
+            meshes[2].Rotate(as_current * delta);
+            meshes[3].Rotate(as_current * delta);
 
             //Rotate
             forward = forward.Rotate((lts_current - rts_current) * delta * turnFactor);
@@ -127,19 +115,11 @@ namespace TankGame
             rts_target = tr;
             as_target  = t;
         }
-        private void Fire()
-        {
-            if (Physics.PointMeshCollision(mesh[2].worldPosition + mesh[2].forward * 3.2f, collider.Layer))
-                return;
-
-            Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward, collider.Layer);
-            MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
-        }
 
         public override void Destroy()
         {
-            for (int i = 0; i < mesh.Count; i++)
-                new ExplodeLineLoopToDots(mesh[i], 100);
+            for (int i = 0; i < meshes.Count; i++)
+                new ExplodeLineLoopToDots(meshes[i], 100);
 
             base.Destroy();
         }

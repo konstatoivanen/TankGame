@@ -11,72 +11,69 @@ namespace TankGame
 {
     public class Explosion : BaseObject
     {
-        int tickCount = 0;
-        int lifeTime = 40;
+        private float killTime;
         Random random = new Random();
 
         public Explosion(Vector2 pos, Vector2 fwd)
         {
             Vector2[] verts = { new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0) };
 
-            Mesh ExplosionMesh = new Mesh(verts.Length, this);
-            ExplosionMesh.vertices = verts;
-            ExplosionMesh.color = Color.OrangeRed;
-            ExplosionMesh.renderMode = PrimitiveType.Quads;
-            mesh = new List<Mesh>();
-            mesh.Add(ExplosionMesh);
-            position = pos;
-            forward = fwd;
+            Mesh ExplosionMesh = new Mesh(verts, this, Color.OrangeRed, PrimitiveType.Quads);
+
+            meshes.Add(ExplosionMesh);
+
+            position    = pos;
+            forward     = fwd;
+
+            killTime = Time.time + 0.25f;
 
             Initialize();
         }
 
         public override void Update()
         {
-            for (int i = 0; i < mesh[0].vertices.Length; i++)
-            {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.4f + forward * 0.05f;
-            }
-            tickCount++;
-            if (tickCount > lifeTime)
+            for (int i = 0; i < meshes[0].vertices.Length; i++)
+                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.4f + forward * 0.05f;
+
+            if (Time.time > killTime)
                 Destroy();
+        }
+    }
+
+    public class Dot
+    {
+        public Vector2 position;
+        public Vector2 velocity;
+
+        public float killTime;
+        public float damping;
+        public bool alive;
+
+        public Dot(Vector2 pos, Vector2 vel, float lt, float d)
+        {
+            position    = pos;
+            velocity    = vel;
+            killTime    = Time.time + lt;
+            damping     = d;
+            alive       = true;
+        }
+
+        public void Update(float delta)
+        {
+            if (!alive)
+                return;
+
+            position   += velocity * delta;
+            velocity    = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
+
+            if (Time.time > killTime)
+                alive = false;
         }
     }
 
     public class Sparks : BaseObject
     {
         Random random = new Random();
-
-        public class Dot
-        {
-            public Vector2 position;
-            public Vector2 velocity;
-
-            public float lifeTimeLeft;
-            public float damping;
-            public bool alive;
-
-            public Dot(Vector2 pos, Vector2 vel, float lt, float d)
-            {
-                position        = pos;
-                velocity        = vel;
-                lifeTimeLeft    = lt;
-                damping         = d;
-                alive           = true;
-            }
-
-            public void Update(float delta)
-            {
-                if (!alive)
-                    return;
-
-                position        += velocity * delta;
-                lifeTimeLeft    -= delta;
-                velocity         = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
-
-                if (lifeTimeLeft <= 0) alive = false;
-            }
-        }
 
         private List<Dot> dots;
         private int prevLength;
@@ -89,9 +86,7 @@ namespace TankGame
 
             for (int i = 0; i < count; ++i) dots.Add(new Dot(pos, random.OnScaledCircle(-maxSpeed, maxSpeed), random.Range(mimMaxLifeTime.X, mimMaxLifeTime.Y), damping));
 
-            mesh = new List<Mesh>();
-
-            mesh.Add(new Mesh(count, this, Color.Orange, PrimitiveType.Points));
+            meshes.Add(new Mesh(count, this, Color.Orange, PrimitiveType.Points));
 
             prevLength = count;
 
@@ -103,7 +98,7 @@ namespace TankGame
             for (int i = 0; i < dots.Count; ++i) if (!dots[i].alive) dots.Remove(dots[i]);
 
             if (prevLength != dots.Count)
-                mesh[0].vertices = new Vector2[dots.Count];
+                meshes[0].vertices = new Vector2[dots.Count];
 
             prevLength = dots.Count;
 
@@ -116,7 +111,7 @@ namespace TankGame
             for (int i = 0; i < dots.Count; ++i)
             {
                 dots[i].Update(Time.deltatime);
-                mesh[0].vertices[i] = position - dots[i].position;
+                meshes[0].vertices[i] = position - dots[i].position;
             }
         }
     }
@@ -132,14 +127,10 @@ namespace TankGame
         public MuzzleFlashSmoke(Vector2 pos, Vector2 fwd)
         {
             Mesh SmokeMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.DarkGray, PrimitiveType.LineLoop);
-            mesh = new List<Mesh>();
-            mesh.Add(SmokeMesh);
+            meshes.Add(SmokeMesh);
 
-            position = pos;
-
-            // Fixes mesh facing wrong way when tank spawns and hasn't rotated at all
-            SmokeMesh.forward = fwd;
-            //forward = fwd;
+            position            = pos;
+            SmokeMesh.forward   = fwd;
 
             //Convert color to vector3
             colorCurrent = SmokeMesh.color.ToVector();
@@ -149,16 +140,14 @@ namespace TankGame
 
         public override void Update()
         {
-            for (int i = 0; i < mesh[0].vertices.Length; i++)
-            {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
-            }
+            for (int i = 0; i < meshes[0].vertices.Length; i++)
+                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
 
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
 
             //Convert vector3 back to color
-            mesh[0].color = colorCurrent.ToColor();
+            meshes[0].color = colorCurrent.ToColor();
 
             timer += Time.deltatime;
             if (timer > lifeTime)
@@ -177,14 +166,10 @@ namespace TankGame
         {
             Mesh MuzzleFlashMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.Orange, PrimitiveType.LineLoop);
 
-            mesh = new List<Mesh>();
-            mesh.Add(MuzzleFlashMesh);
+            meshes.Add(MuzzleFlashMesh);
 
-            position = pos;
-
-            // Fixes mesh facing wrong way when tank spawns and hasn't rotated at all
+            position                = pos;
             MuzzleFlashMesh.forward = fwd;
-            //forward = fwd;
 
             colorCurrent = MuzzleFlashMesh.color.ToVector();
 
@@ -193,16 +178,14 @@ namespace TankGame
 
         public override void Update()
         {
-            for (int i = 0; i < mesh[0].vertices.Length; i++)
-            {
-                mesh[0].vertices[i] = mesh[0].vertices[i] + random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
-            }
+            for (int i = 0; i < meshes[0].vertices.Length; i++)
+                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
 
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
 
             //Convert vector3 back to color
-            mesh[0].color = colorCurrent.ToColor();
+            meshes[0].color = colorCurrent.ToColor();
 
             timer += Time.deltatime;
             if (timer > lifeTime)
@@ -235,22 +218,18 @@ namespace TankGame
             Vector2 c = ExtensionMethods.GetPolyCenter(v);
 
             for (int i = 0; i < v.Length; ++i)
-            {
                 v[i] = random.OnScaledCircle(size, size + sizeVar);
-            }
 
             for (int i = 0; i < v.Length; ++i)
-            {
                 v[i] -= c;
-            }
 
             v = ExtensionMethods.SortPolyClockwise(v, c);
 
             Mesh ObstacleMesh = new Mesh(v, this, Color.Gray, PrimitiveType.LineLoop);
-            mesh.Add(ObstacleMesh);
+            meshes.Add(ObstacleMesh);
             position = pos;
 
-            collider = new Collider(this, Vector2.Zero, mesh[0], PhysicsLayer.Default);
+            collider = new Collider(this, meshes[0], PhysicsLayer.Default);
 
             Initialize();
         }
@@ -264,8 +243,10 @@ namespace TankGame
     public class ExplodeLineLoopToDots : BaseObject
     {
         List<Vector2[]> points = new List<Vector2[]>();
+
         Random random = new Random();
-        List<Sparks.Dot> dots;
+        List<Dot> dots;
+
         int count;
         private int prevLength;
 
@@ -276,22 +257,24 @@ namespace TankGame
                 points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[i < _mesh.vertices.Length -1? i + 1 : 0], countPerLine));
                 count += countPerLine;
             }
-            if (points.Count > 0)
+
+            if (points.Count <= 0)
             {
-                dots = new List<Sparks.Dot>();
-
-                for (int i = 0; i < points.Count; ++i)
-                    for (int e = 0; e < points[i].Length; ++e)
-                        dots.Add(new Sparks.Dot(points[i][e], random.OnScaledCircle(-2, 2), random.Range(2, 5), 1));
-
-                mesh = new List<Mesh>();
-
-                mesh.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
-                position        = _mesh.worldPosition;
-                mesh[0].forward = _mesh.forward;
-
-                Initialize();
+                Destroy();
+                return;
             }
+
+            dots = new List<Dot>();
+
+            for (int i = 0; i < points.Count; ++i)
+                for (int e = 0; e < points[i].Length; ++e)
+                    dots.Add(new Dot(points[i][e], random.OnScaledCircle(-2, 2), random.Range(2, 5), 1));
+
+            meshes.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
+            position        = _mesh.worldPosition;
+            meshes[0].forward = _mesh.forward;
+
+            Initialize();
         }            
 
         public override void Update()
@@ -299,7 +282,7 @@ namespace TankGame
             for (int i = 0; i < dots.Count; ++i) if (!dots[i].alive) dots.Remove(dots[i]);
 
             if (prevLength != dots.Count)
-                mesh[0].vertices = new Vector2[dots.Count];
+                meshes[0].vertices = new Vector2[dots.Count];
 
             prevLength = dots.Count;
 
@@ -312,7 +295,7 @@ namespace TankGame
             for (int i = 0; i < dots.Count; ++i)
             {
                 dots[i].Update(Time.deltatime);
-                mesh[0].vertices[i] = dots[i].position;
+                meshes[0].vertices[i] = dots[i].position;
             }
         }
     }

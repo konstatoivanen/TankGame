@@ -23,21 +23,21 @@ namespace Utils
                 value.Normalize();
 
                 //Automatically update potential mesh orientations
-                if (mesh != null && mesh.Count > 0)
-                    for (int i = 0; i < mesh.Count; ++i)
-                        mesh[i].forward = mesh[i].forward.Rotate(ExtensionMethods.Angle(forward, value));
+                if (meshes != null && meshes.Count > 0)
+                    for (int i = 0; i < meshes.Count; ++i)
+                        meshes[i].forward = meshes[i].forward.Rotate(ExtensionMethods.Angle(forward, value));
 
                 m_fwd = value;
             }
         }
         public  Vector2 right    { get { return forward.GetNormal(); } }
 
-        public List<Mesh> mesh { get; set; }
+        public List<Mesh> meshes { get; set; }
         public Collider collider;
 
         public BaseObject()
         {
-            mesh = new List<Mesh>(); // avoid null reference
+            meshes      = new List<Mesh>(); // avoid null reference
             position    = Vector2.Zero;
             m_fwd       = new Vector2(1,0);
 
@@ -49,7 +49,7 @@ namespace Utils
         {
             if (collider != null) Physics.Physics.AddCollider(collider);
 
-            if (mesh != null && mesh.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(mesh);
+            if (meshes != null && meshes.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(meshes);
         }
 
         public virtual void Destroy()
@@ -57,8 +57,8 @@ namespace Utils
             TankGame.TankGame.OnUpdate  -= Update;
             TankGame.TankGame.OnRestart -= Destroy;
 
-            for (int i = 0; i < mesh.Count; ++i)
-                TankGame.TankGame.RemoveMeshFromRenderStack(mesh[i]);
+            for (int i = 0; i < meshes.Count; ++i)
+                TankGame.TankGame.RemoveMeshFromRenderStack(meshes[i]);
 
             if (collider != null) Physics.Physics.RemoveCollider(collider);
         }
@@ -300,7 +300,6 @@ namespace Utils
             DrawLine(b.bottomRight, b.bottomLeft, color);
             DrawLine(b.bottomLeft, b.topLeft, color);
         }
-
     }
 
     public struct ContactPoint

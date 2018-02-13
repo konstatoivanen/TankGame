@@ -13,7 +13,7 @@ namespace TankGame
     public static class Time
     {
         public  static float startTime;
-        public  static float timeSinceStartUp
+        public  static float time
         {
             get { return Environment.TickCount / 1000.0f; }
         }
@@ -23,13 +23,13 @@ namespace TankGame
         public static void Init()
         {
             startTime = Environment.TickCount;
-            lastTime  = timeSinceStartUp;
+            lastTime  = time;
         }
         public static void UpdateTime()
         {
-            deltatime = timeSinceStartUp - lastTime;
+            deltatime = time - lastTime;
             deltatime = Math.Max(0.01f, deltatime); //Min Frame deltatime
-            lastTime  = timeSinceStartUp;
+            lastTime  = time;
         }
     }
 

@@ -1,8 +1,9 @@
 ﻿using OpenTK;
-using System.Collections.Generic;
 using Utils;
 using Utils.Physics;
 using System;
+using System.Drawing;
+using OpenTK.Graphics.OpenGL;
 
 namespace TankGame
 {
@@ -10,20 +11,28 @@ namespace TankGame
     {
         public PhysicsLayer Mask;
         public RayCastHit Hit;
-        public Projectile(Vector2 pos, Vector2 fwd, PhysicsLayer mask)
+        public float speed;
+
+        private float killTime;
+        Vector2 previousPos;
+
+        public Projectile(Vector2 pos, Vector2 fwd, float _speed, PhysicsLayer mask)
         {
-            Mesh projectileMesh = new Mesh(4, this);
+            Mesh projectileMesh = new Mesh(4, this, Color.Orange, PrimitiveType.LineLoop);
+
             projectileMesh.vertices[0] = new Vector2(-.3f, .2f);
             projectileMesh.vertices[1] = new Vector2(.3f, .2f);
             projectileMesh.vertices[2] = new Vector2(.3f, -.2f);
             projectileMesh.vertices[3] = new Vector2(-.3f, -.2f);
-            projectileMesh.color = System.Drawing.Color.Orange;
-            projectileMesh.renderMode = OpenTK.Graphics.OpenGL.PrimitiveType.LineLoop;
-            mesh = new List<Mesh>();
-            mesh.Add(projectileMesh);
-            position = pos;
-            forward = fwd;
-            Mask = mask;
+
+            meshes.Add(projectileMesh);
+
+            position    = pos;
+            forward     = fwd;
+            Mask        = mask;
+            speed       = _speed;
+
+            killTime = Time.time + 2;
 
             if (Physics.PointMeshCollision(position, Mask))
             {
@@ -34,18 +43,12 @@ namespace TankGame
             Initialize();
         }
 
-
-        int tickCount = 0;
-        int maxLifeTime = 1000;
-        Vector2 previousPos;
-
         public override void Update()
         {
-            previousPos = position;
-            Move(15f * Time.deltatime);
+            previousPos  = position;
+            position    += forward * speed * Time.deltatime;
 
-            tickCount++;
-            if (tickCount > maxLifeTime)
+            if (Time.time > killTime)
                 Destroy();
 
             PhysicsUpdate();
@@ -56,32 +59,28 @@ namespace TankGame
                 return;
 
             Vector2 dir = (position - previousPos).Normalized();
-            forward = ExtensionMethods.Reflect(dir, Hit.contact.normal);
-            position = Hit.contact.point + forward * 0.05f;
+            forward     = ExtensionMethods.Reflect(dir, Hit.contact.normal);
+            position    = Hit.contact.point + forward * 0.05f;
             previousPos = position;
 
             Sparks s = new Sparks(Hit.contact.point, 64, 4, new Vector2(0.05f, 1f), 1f);
 
-            if (Hit.other.Layer == PhysicsLayer.Default)
-                return;
-
             if (Math.Abs(ExtensionMethods.Angle(dir, forward)) < 2)
                 return;
-            
-            Hit.other.parent.Destroy();
+
+            //Destroy players
+            if (Hit.other.Layer != PhysicsLayer.Default)
+                Hit.other.parent.Destroy();
+
             Destroy();
         }
 
         public override void Destroy()
         {
-            for (int i = 0; i < mesh.Count; i++)
-                new ExplodeLineLoopToDots(mesh[i], 100);
+            for (int i = 0; i < meshes.Count; i++)
+                new ExplodeLineLoopToDots(meshes[i], 100);
 
             base.Destroy();
-        }
-        public void Move(float speed)
-        {
-            position += forward * speed;
         }
     }
 }

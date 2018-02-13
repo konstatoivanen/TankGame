@@ -42,36 +42,34 @@ namespace Utils.Physics
         //circle
         public Collider(BaseObject p, Vector2 c, float rad, PhysicsLayer layer)
         {
-            parent = p;
-            center = c;
-            radius = rad;
-            Type = ColliderType.Circle;
-            Layer = layer;
+            parent  = p;
+            center  = c;
+            radius  = rad;
+            Type    = ColliderType.Circle;
+            Layer   = layer;
         }
         //box
         public Collider(BaseObject p, Vector2 c, Vector2 ext, PhysicsLayer layer)
         {
-            parent = p;
-            center = c;
+            parent  = p;
+            center  = c;
             extents = ext;
-            Type = ColliderType.Box;
-            Layer = layer;
+            Type    = ColliderType.Box;
+            Layer   = layer;
         }
         //mesh
-        public Collider(BaseObject p, Vector2 c, Mesh m, PhysicsLayer layer)
+        public Collider(BaseObject p, Mesh m, PhysicsLayer layer)
         {
-            parent = p;
-            center = c;
-            mesh = m;
-            Type = ColliderType.Mesh;
-            Layer = layer;
+            parent  = p;
+            center  = Vector2.Zero;
+            mesh    = m;
+            Type    = ColliderType.Mesh;
+            Layer   = layer;
         }
     }
 
     public class    Physics
     {
-        #region physics Variables
-
         private static List<Collider> m_colliderList = new List<Collider>();
         public  static void AddCollider(Collider c)
         {
@@ -91,7 +89,6 @@ namespace Utils.Physics
         {
             m_colliderList.Clear();
         }
-        #endregion
 
         public static bool RayCast(Vector2 c, Vector2 d, PhysicsLayer mask, ref RayCastHit hit)
         {
@@ -348,6 +345,31 @@ namespace Utils.Physics
             }
 
             return false;
+        }
+        public static void      CollisonSolve_Mesh(BaseObject b, float rotationAmount)
+        {
+            if (b.collider == null || b.collider.Type != ColliderType.Mesh)
+                return;
+
+            ContactPoint    cp      = new ContactPoint();
+            Vector2         dp      = Vector2.Zero;
+
+            if (ExtensionMethods.MapBoundsIntersection(b.collider.mesh, ref dp))
+                b.position += dp;
+
+            if (!CollisionMesh(b.collider, ref cp))
+                return;
+
+
+            b.position += cp.normal;
+
+            cp.normal = b.position - (cp.point - cp.normal);
+
+            cp.normal.Normalize();
+
+            float angle = ExtensionMethods.Angle(b.forward, cp.normal);
+
+            b.forward = b.forward.Rotate(angle * rotationAmount);
         }
     }
 }
