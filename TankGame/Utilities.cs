@@ -466,7 +466,7 @@ namespace Utils
                 m2v.Add(v2[i]);
             }
         }
-        public static bool MapBoundsIntersection(Mesh m, ref Vector2 dep)
+        public static bool      MapBoundsIntersection(Mesh m, ref Vector2 dep)
         {
             Bounds b = new Bounds(m);
 
@@ -660,6 +660,31 @@ namespace Utils
             return Vector2.Dot(planeNormal.Normalized(), point - planePoint);
         }
 
+        public static bool      MeshContainsPoint(Mesh m, Vector2 p)
+        {
+            Vector2[] v = m.verticesWorldSpace;
+
+            v = SortPolyClockwise(v);
+
+            Vector2 n;
+            Vector2 d;
+
+            int count = 0;
+
+            for (int i = 0; i < v.Length; ++i)
+            {
+                n = (v[i] - v[i == v.Length -1? 0 : i+1]).Normalized();
+                n = n.GetNormal();
+                d = (v[i] - p).Normalized();
+
+                if (Vector2.Dot(n, d) > 0)
+                    continue;
+
+                ++count;
+            }
+
+            return count == v.Length;
+        }
         public static Vector2[] SortPolyClockwise(Vector2[] v)
         {
             Vector2 c = GetPolyCenter(v);

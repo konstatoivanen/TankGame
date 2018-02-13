@@ -14,7 +14,7 @@ namespace TankGame
         private float turnFactor;
 
         private ContactPoint collisionContact;
-        private Vector2 tempTest;
+        private Vector2 depenetrationVector;
 
         private bool  triggerDownPrev;
 
@@ -65,23 +65,24 @@ namespace TankGame
         {
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
+            PhysicsUpdate();
+        }
 
-            Vector2 temp = Vector2.Zero;
-            ExtensionMethods.MapBoundsIntersection(collider.mesh, ref temp);
-            position += temp;
+        public void PhysicsUpdate()
+        {
+            depenetrationVector = Vector2.Zero;
 
-            if (!Physics.CollisionMesh(collider, ref collisionContact))
+            if (!Physics.CollisionMesh(collider, ref collisionContact) && !ExtensionMethods.MapBoundsIntersection(collider.mesh, ref depenetrationVector))
                 return;
 
-            position += collisionContact.normal;
+            position += collisionContact.normal + depenetrationVector;
 
-            tempTest = position - (collisionContact.point - collisionContact.normal);
-            tempTest.Normalize();
+            depenetrationVector += position - (collisionContact.point - collisionContact.normal);
+            depenetrationVector.Normalize();
 
-            float angle = ExtensionMethods.Angle(forward, tempTest);
+            float angle = ExtensionMethods.Angle(forward, depenetrationVector);
 
             forward = forward.Rotate(angle * Time.deltatime * 0.5f);
-
         }
 
         private void InputUpdate()
@@ -128,7 +129,10 @@ namespace TankGame
         }
         private void Fire()
         {
-			Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward, collider.Layer);
+            if (Physics.PointMeshCollision(mesh[2].worldPosition + mesh[2].forward * 3.2f, collider.Layer))
+                return;
+
+            Projectile proj = new Projectile(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward, collider.Layer);
             MuzzleFlash flash = new MuzzleFlash(mesh[2].worldPosition + mesh[2].forward * 3.2f, mesh[2].forward);
         }
 

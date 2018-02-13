@@ -25,6 +25,12 @@ namespace TankGame
             forward = fwd;
             Mask = mask;
 
+            if (Physics.PointMeshCollision(position, Mask))
+            {
+                base.Destroy();
+                return;
+            }
+
             Initialize();
         }
 
@@ -55,6 +61,9 @@ namespace TankGame
             previousPos = position;
 
             Sparks s = new Sparks(Hit.contact.point, 64, 4, new Vector2(0.05f, 1f), 1f);
+
+            if (Hit.other.Layer == PhysicsLayer.Default)
+                return;
 
             if (Math.Abs(ExtensionMethods.Angle(dir, forward)) < 2)
                 return;

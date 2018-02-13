@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Utils;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
+using Utils.Physics;
 
 
 namespace TankGame
@@ -219,6 +220,44 @@ namespace TankGame
             MuzzleFlashFire fire0 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(0.2f));
             MuzzleFlashFire fire1 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(-0.2f));
             MuzzleFlashFire fire2 = new MuzzleFlashFire(pos + fwd * 0.2f, fwd);
+        }
+    }
+
+    public class Obstacle : BaseObject
+    {
+        Random random = new Random();
+
+        public Obstacle(float size, float sizeVar, Vector2 pos)
+        {
+            
+            Vector2[] v = new Vector2[3];
+
+            Vector2 c = ExtensionMethods.GetPolyCenter(v);
+
+            for (int i = 0; i < v.Length; ++i)
+            {
+                v[i] = random.OnScaledCircle(size, size + sizeVar);
+            }
+
+            for (int i = 0; i < v.Length; ++i)
+            {
+                v[i] -= c;
+            }
+
+            v = ExtensionMethods.SortPolyClockwise(v, c);
+
+            Mesh ObstacleMesh = new Mesh(v, this, Color.Gray, PrimitiveType.LineLoop);
+            mesh.Add(ObstacleMesh);
+            position = pos;
+
+            collider = new Collider(this, Vector2.Zero, mesh[0], PhysicsLayer.Default);
+
+            Initialize();
+        }
+
+        public override void Update()
+        {
+            
         }
     }
 

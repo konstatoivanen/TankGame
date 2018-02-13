@@ -70,36 +70,6 @@ namespace Utils.Physics
 
     public class    Physics
     {
-        /*
-        public bool DetectCollision(CirlceCollider c1, CirlceCollider c2, ref ContactPoint cp)
-        {
-            //Axis-aligned bounding box
-            if (c1.center.X + c1.radius   + c2.radius > c2.center.X
-             && c1.center.X < c2.center.X + c1.radius + c2.radius
-             && c1.center.Y + c1.radius   + c2.radius > c2.center.Y
-             && c1.center.Y < c2.center.Y + c1.radius + c2.radius)
-            {
-                //AABBs overlap
-                float distance = Math.Abs((c1.center - c2.center).Length);
-                if (distance < c1.radius + c2.radius)
-                {
-                    //Circles collide WIP
-                    cp.normal = Vector2.Normalize(c2.center - c1.center);
-                    cp.point = (c1.center + (cp.normal * c1.radius));
-                    return true;
-                }
-                else
-                {
-                    //AABBs overlap, but circles do not collide
-                    return false;
-                }
-            }
-            else
-            {
-                //AABBs do not overlap
-                return false;
-            }
-        }*/
         #region physics Variables
 
         private static List<Collider> m_colliderList = new List<Collider>();
@@ -143,12 +113,13 @@ namespace Utils.Physics
                 switch(m_colliderList[i].Type)
                 {
                     case ColliderType.Mesh:
+
                         if (!ExtensionMethods.MeshIntersection(m_colliderList[i].mesh, c, d, ref cp))
                             continue;
 
                         //Contact point was inside the collider
-                        if (Vector2.Dot(cp.point - ExtensionMethods.GetPolyCenter(m_colliderList[i].mesh.vertices), cp.normal) > 0)
-                            continue;
+                     //   if (Vector2.Dot(cp.point - ExtensionMethods.GetPolyCenter(m_colliderList[i].mesh.verticesWorldSpace), d) > 0)
+                       //     continue;
 
                         break;
 
@@ -173,6 +144,24 @@ namespace Utils.Physics
             }
 
             return r;
+        }
+        public static bool PointMeshCollision(Vector2 p, PhysicsLayer mask)
+        {
+            for (int i = 0; i < m_colliderList.Count; ++i)
+            {
+                //Is the collider in the cast mask
+                if (m_colliderList[i].Layer.HasFlag(mask))
+                    continue;
+
+                if (m_colliderList[i].Type != ColliderType.Mesh)
+                    continue;
+
+                //Cannot fire a ray inside collider
+                if (ExtensionMethods.MeshContainsPoint(m_colliderList[i].mesh, p))
+                    return true;
+            }
+
+            return false;
         }
 
         public static Vector2   DepenetrationMesh(Collider c)
