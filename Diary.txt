@@ -92,8 +92,24 @@ Lauri:
 -Spaghetti restart
 -Temporary Draw stack, Debug.DrawLine
 
+- - -
+
 12/02/2018
 
 Lauri:
 -Added map boundaries (very broken)
 -Added Debug.DrawNormals for drawing all normals of a Mesh.
+
+Konsta:
+-Mesh Collision Solver
+- - -
+
+13/02/2018
+Anssi:
+-Obstacle class
+Collab effort:
+-Boundaries
+	-Bounds Struct
+	-Map Bounds Collision Solver
+-Fixed raycast logic
+-Various Polygon math methods
