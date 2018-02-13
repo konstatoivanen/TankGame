@@ -426,7 +426,7 @@ namespace Utils
 
                 for(int j = 0; j < v2.Length; ++j)
                 {
-                    n = (v2[j] - v2[j == v2.Length -1? 0 : j+1]).Normalized();
+                    n = v2[j] - v2[j == v2.Length -1? 0 : j+1];
                     n = n.GetNormal();
                     d = v1[i] - v2[j];
 
@@ -449,7 +449,7 @@ namespace Utils
 
                 for (int j = 0; j < v1.Length; ++j)
                 {
-                    n = (v1[j] - v1[j == v1.Length - 1 ? 0 : j + 1]).Normalized();
+                    n = v1[j] - v1[j == v1.Length - 1 ? 0 : j + 1];
                     n = n.GetNormal();
                     d = v2[i] - v1[j];
 
@@ -469,17 +469,16 @@ namespace Utils
         {
             Bounds b = new Bounds(m);
 
-            Vector2 topLeft = TankGame.TankGame.battlefieldSize*0.5f;
-            Vector2 bottomRight = -topLeft;
+            Vector2 tl = TankGame.TankGame.battlefieldSize*0.5f;
 
             float dL, dR, dT, dB;
 
-            dL = Math.Max(Math.Abs(b.Left) - Math.Abs(topLeft.X), 0); 
-            dR = Math.Max(Math.Abs(b.Right) - Math.Abs(bottomRight.X), 0);
-            dT = Math.Max(Math.Abs(b.Top) - Math.Abs(topLeft.Y), 0);
-            dB = Math.Max(Math.Abs(b.Bottom) - Math.Abs(bottomRight.Y), 0);
+            dL = Math.Max(Math.Abs(b.Left)      - tl.X, 0); 
+            dR = Math.Max(Math.Abs(b.Right)     - tl.X, 0);
+            dT = Math.Max(Math.Abs(b.Top)       - tl.Y, 0);
+            dB = Math.Max(Math.Abs(b.Bottom)    - tl.Y, 0);
 
-            if (dL <= 0 && dR <= 0 && dT <= 0 && dB <= 0)
+            if (dL == 0 && dR == 0 && dT == 0 && dB == 0)
                 return false;
 
             dep = new Vector2(-dL + dR, -dT + dB);
@@ -515,10 +514,8 @@ namespace Utils
             v1 = SortPolyClockwise(v1);
             v2 = SortPolyClockwise(v2);
 
-            Vector2 a0;
-            Vector2 a1;
-            Vector2 b0;
-            Vector2 b1;
+            Vector2 a0, a1, b0, b1;
+
             bool r = false;
 
             ContactPoint cp = new ContactPoint();
@@ -672,9 +669,9 @@ namespace Utils
 
             for (int i = 0; i < v.Length; ++i)
             {
-                n = (v[i] - v[i == v.Length -1? 0 : i+1]).Normalized();
+                n = v[i] - v[i == v.Length -1? 0 : i+1];
                 n = n.GetNormal();
-                d = (v[i] - p).Normalized();
+                d = v[i] - p;
 
                 if (Vector2.Dot(n, d) > 0)
                     continue;

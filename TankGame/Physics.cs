@@ -161,7 +161,7 @@ namespace Utils.Physics
             return false;
         }
 
-        public static Vector2   DepenetrationMesh(Collider c)
+        public static Vector2   CollisionMesh(Collider c)
         {
             if (c.Type != ColliderType.Mesh)
                 return Vector2.Zero;
@@ -206,8 +206,7 @@ namespace Utils.Physics
                 Vector2 n1  = Vector2.Zero;
                 Vector2 n2  = Vector2.Zero;
 
-                float f0 = 0;
-                float f1 = 0;
+                float f0 = 0, f1 = 0;
 
                 if(p0.Count > 0)
                     for(int j = 0; j < p0.Count; ++j)
@@ -297,8 +296,7 @@ namespace Utils.Physics
                 Vector2 n1  = Vector2.Zero;
                 Vector2 n2  = Vector2.Zero;
 
-                float f0 = 0;
-                float f1 = 0;
+                float f0 = 0, f1 = 0;
 
                 if(p0.Count > 0)
                     for(int j = 0; j < p0.Count; ++j)
@@ -336,7 +334,7 @@ namespace Utils.Physics
                     return false;
 
 
-                d  = (m_colliderList[i].parent.position - c.parent.position).Normalized();
+                d  = m_colliderList[i].parent.position - c.parent.position;
                 p *= Math.Sign(-Vector2.Dot(p, d));
 
                 result = new ContactPoint(ExtensionMethods.Lerp(contacts[0].point, contacts[1].point, 0.5f), p);
@@ -360,12 +358,9 @@ namespace Utils.Physics
             if (!CollisionMesh(b.collider, ref cp))
                 return;
 
-
             b.position += cp.normal;
 
             cp.normal = b.position - (cp.point - cp.normal);
-
-            cp.normal.Normalize();
 
             float angle = ExtensionMethods.Angle(b.forward, cp.normal);
 
