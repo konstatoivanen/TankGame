@@ -187,6 +187,12 @@ namespace Utils
             Color       = color;
             RenderMode  = renderMode;
         }
+        public DebugMesh(Mesh m)
+        {
+            vertices = m.vertices;
+            Color = m.color;
+            RenderMode = m.renderMode;
+        }
 
         public void Draw()
         {

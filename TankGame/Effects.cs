@@ -116,6 +116,50 @@ namespace TankGame
         }
     }
 
+    public class DecayQuadToDots
+    {
+        public DecayQuadToDots(Mesh m)
+        {
+            if (m.renderMode != PrimitiveType.Quads)
+                return;
+
+            List<Mesh> mList = SplitMesh(m);
+            for (int i = 0; i < mList.Count; i++)
+            {
+                ShrinkMesh(mList[i], 0.1f);
+            }
+        }
+
+        public List<Mesh> SplitMesh(Mesh m)
+        {
+            List<Mesh> list = new List<Mesh>();
+            List<Vector2> midPoints = new List<Vector2>();
+            Vector2 center = ExtensionMethods.GetPolyCenter(m.verticesWorldSpace);            
+
+            for (int i = 0; i < m.verticesWorldSpace.Length; i++)
+            {
+                midPoints.Add((m.verticesWorldSpace[i + 1 == m.verticesWorldSpace.Length ? 0 : i + 1] + m.verticesWorldSpace[i])/2);
+            }
+            for (int i = 0; i < midPoints.Count; i++)
+            {
+                list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1] }, null, m.color));
+            }
+            return list;
+        }
+
+        public static void ShrinkMesh(Mesh m, float multiplier)
+        {
+            Vector2 center = ExtensionMethods.GetPolyCenter(m.vertices);
+
+            for (int i = 0; i < m.vertices.Length; i++)
+            {
+                
+                m.vertices[i] = new Vector2(ExtensionMethods.Lerp(m.vertices[i].X, center.X, multiplier), ExtensionMethods.Lerp(m.vertices[i].Y, center.Y, multiplier));
+            }
+        }
+    }
+    
+
     public class MuzzleFlashSmoke : BaseObject
     {
         float timer = 0;
