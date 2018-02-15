@@ -116,20 +116,27 @@ namespace TankGame
         }
     }
 
-    public class DecayQuadToDots
+    public class DecayMeshToDots : BaseObject
     {
-        public DecayQuadToDots(Mesh m)
+        public DecayMeshToDots(Mesh m)
         {
-            if (m.renderMode != PrimitiveType.Quads)
-                return;
-
-            List<Mesh> mList = SplitMesh(m);
-            for (int i = 0; i < mList.Count; i++)
+            //position = m.parent.position;
+            //forward = m.parent.forward;
+            meshes = SplitMesh(m);
+            for (int i = 0; i < meshes.Count; i++)
             {
-                ShrinkMesh(mList[i], 0.1f);
+                meshes[i].parent = this;
+            }
+            
+            Initialize();        
+        }
+        public override void Update()
+        {
+            for (int i = 0; i < meshes.Count; i++)
+            {
+                ShrinkMesh(meshes[i], 0.01f);
             }
         }
-
         public List<Mesh> SplitMesh(Mesh m)
         {
             List<Mesh> list = new List<Mesh>();
@@ -142,7 +149,7 @@ namespace TankGame
             }
             for (int i = 0; i < midPoints.Count; i++)
             {
-                list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1] }, null, m.color));
+                list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1], m.verticesWorldSpace[i + 1 == m.verticesWorldSpace.Length ? 0 : i + 1] }, m.parent, m.color));
             }
             return list;
         }
@@ -152,11 +159,12 @@ namespace TankGame
             Vector2 center = ExtensionMethods.GetPolyCenter(m.vertices);
 
             for (int i = 0; i < m.vertices.Length; i++)
-            {
-                
-                m.vertices[i] = new Vector2(ExtensionMethods.Lerp(m.vertices[i].X, center.X, multiplier), ExtensionMethods.Lerp(m.vertices[i].Y, center.Y, multiplier));
+            {                
+                m.vertices[i] = ExtensionMethods.Lerp(m.vertices[i], center, multiplier);
             }
         }
+
+        
     }
     
 
