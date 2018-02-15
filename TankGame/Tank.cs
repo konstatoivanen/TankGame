@@ -87,7 +87,6 @@ namespace TankGame
         }
         private void Fire()
         {
-            new DecayMeshToDots(meshes[0]);
             //Dont fire when the muzzle is inside a collider
             if (Physics.PointMeshCollision(meshes[2].worldPosition + meshes[2].forward * 3.2f, collider.Layer))
                 return;

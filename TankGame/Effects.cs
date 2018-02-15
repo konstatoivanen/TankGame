@@ -116,9 +116,13 @@ namespace TankGame
         }
     }
 
-    public class DecayMeshToDots : BaseObject
+    public class ShatterMesh : BaseObject
     {
-        public DecayMeshToDots(Mesh m)
+        float SplitInterval = 1f;
+        float LifeTime = 2f;
+        float LastSplit;
+
+        public ShatterMesh(Mesh m)
         {
             //position = m.parent.position;
             //forward = m.parent.forward;
@@ -132,10 +136,27 @@ namespace TankGame
         }
         public override void Update()
         {
+            LifeTime -= Time.deltatime;
+            if (LifeTime <= 0) Destroy();
             for (int i = 0; i < meshes.Count; i++)
             {
                 ShrinkMesh(meshes[i], 0.01f);
             }
+            if (Time.time - LastSplit > SplitInterval)
+            {
+                LastSplit = Time.time;
+                List<Mesh> temp = new List<Mesh>();
+
+                for (int i = 0; i < meshes.Count; i++)
+                {
+                    temp.AddRange(SplitMesh(meshes[i]));
+                }
+
+                TankGame.RemoveMeshesFromRenderStack(meshes);
+                meshes = temp;
+                TankGame.AddMeshesToRenderStack(meshes);
+            }
+                
         }
         public List<Mesh> SplitMesh(Mesh m)
         {
@@ -149,7 +170,7 @@ namespace TankGame
             }
             for (int i = 0; i < midPoints.Count; i++)
             {
-                list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1], m.verticesWorldSpace[i + 1 == m.verticesWorldSpace.Length ? 0 : i + 1] }, m.parent, m.color));
+                list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1], m.verticesWorldSpace[i] }, m.parent, m.color));
             }
             return list;
         }
@@ -285,7 +306,13 @@ namespace TankGame
 
             Initialize();
         }
+        public override void Destroy()
+        {
+            for (int i = 0; i < meshes.Count; i++)
+                new ShatterMesh(meshes[i]);
 
+            base.Destroy();
+        }
         public override void Update()
         {
             
