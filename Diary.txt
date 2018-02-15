@@ -103,6 +103,7 @@ Lauri:
 Konsta:
 -Mesh Collision Solver
 -Mesh/Mesh Intersection
+
 - - -
 
 13/02/2018
@@ -114,3 +115,11 @@ Collab effort:
 	-Map Bounds Collision Solver
 -Fixed raycast logic
 -Various Polygon math methods
+
+- - -
+
+15/02/2018
+
+Lauri: 
+-Experiementing with more effects
+-Added extension method for rotating a vector around a given point
