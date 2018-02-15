@@ -69,7 +69,7 @@ namespace TankGame
                 return;
 
             //Destroy players
-            //if (Hit.other.Layer != PhysicsLayer.Default)
+            if (Hit.other.Layer != PhysicsLayer.Default)
                 Hit.other.parent.Destroy();
 
             Destroy();
