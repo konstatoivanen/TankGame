@@ -22,8 +22,8 @@ namespace TankGame
 
             meshes.Add(ExplosionMesh);
 
-            position    = pos;
-            forward     = fwd;
+            position = pos;
+            forward = fwd;
 
             killTime = Time.time + 0.25f;
 
@@ -51,11 +51,11 @@ namespace TankGame
 
         public Dot(Vector2 pos, Vector2 vel, float lt, float d)
         {
-            position    = pos;
-            velocity    = vel;
-            killTime    = Time.time + lt;
-            damping     = d;
-            alive       = true;
+            position = pos;
+            velocity = vel;
+            killTime = Time.time + lt;
+            damping = d;
+            alive = true;
         }
 
         public void Update(float delta)
@@ -63,8 +63,8 @@ namespace TankGame
             if (!alive)
                 return;
 
-            position   += velocity * delta;
-            velocity    = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
+            position += velocity * delta;
+            velocity = ExtensionMethods.MoveTowards(velocity, Vector2.Zero, damping * delta);
 
             if (Time.time > killTime)
                 alive = false;
@@ -112,6 +112,38 @@ namespace TankGame
             {
                 dots[i].Update(Time.deltatime);
                 meshes[0].vertices[i] = position - dots[i].position;
+            }
+        }
+    }
+
+    public class SpinningThing : ShatterMesh
+    {
+        Random random = new Random();
+        List<int> spinDir = new List<int>();
+
+        public SpinningThing(Mesh m) : base(m)
+        {
+
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            for (int i = 0; i < meshes.Count; i++)
+            {
+                while (i > spinDir.Count - 1)
+                {
+                    spinDir.Add(ExtensionMethods.Range(random, 0f, 2f) < 1 ? -1 : 1);
+                }
+                meshes[i].RotateVertices(0.01f * spinDir[i], ExtensionMethods.GetPolyCenter(meshes[i].vertices));
+            }
+        }
+        public override void Destroy()
+        {
+            base.Destroy();
+            for (int i = 0; i < meshes.Count; i++)
+            {
+                new ExplodeLineLoopToDots(meshes[i], 2, random.Range(0.5f, 2f));
             }
         }
     }
@@ -309,7 +341,7 @@ namespace TankGame
         public override void Destroy()
         {
             for (int i = 0; i < meshes.Count; i++)
-                new ShatterMesh(meshes[i]);
+                new SpinningThing(meshes[i]);
 
             base.Destroy();
         }
@@ -354,7 +386,33 @@ namespace TankGame
             meshes[0].forward = _mesh.forward;
 
             Initialize();
-        }            
+        }
+        public ExplodeLineLoopToDots(Mesh _mesh, int countPerLine, float lifeTime)
+        {
+            for (int i = 0; i < _mesh.vertices.Length; ++i)
+            {
+                points.Add(ExtensionMethods.LineToDots(_mesh.vertices[i], _mesh.vertices[i < _mesh.vertices.Length - 1 ? i + 1 : 0], countPerLine));
+                count += countPerLine;
+            }
+
+            if (points.Count <= 0)
+            {
+                Destroy();
+                return;
+            }
+
+            dots = new List<Dot>();
+
+            for (int i = 0; i < points.Count; ++i)
+                for (int e = 0; e < points[i].Length; ++e)
+                    dots.Add(new Dot(points[i][e], random.OnScaledCircle(-2, 2), lifeTime, 1));
+
+            meshes.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
+            position = _mesh.worldPosition;
+            meshes[0].forward = _mesh.forward;
+
+            Initialize();
+        }
 
         public override void Update()
         {

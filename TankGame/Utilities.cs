@@ -159,6 +159,24 @@ namespace Utils
         {
             m_fwd = m_fwd.Rotate(radians);
         }
+        public void Rotate(float radians, Vector2 center)
+        {
+            m_fwd = m_fwd.Rotate(radians, center);
+        }
+        public void RotateVertices(float radians)
+        {
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = vertices[i].Rotate(radians);
+            }
+        }
+        public void RotateVertices(float radians, Vector2 center)
+        {
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = vertices[i].Rotate(radians, center);
+            }
+        }
         public void Draw()
         {
             GL.Begin(renderMode);
@@ -721,6 +739,21 @@ namespace Utils
             float ty = v.Y;
             v.X = (cos * tx) - (sin * ty);
             v.Y = (sin * tx) + (cos * ty);
+            return v;
+        }
+        public static Vector2 Rotate(this Vector2 v, float radians, Vector2 center)
+        {
+            float sin = (float)Math.Sin(radians);
+            float cos = (float)Math.Cos(radians);
+
+            v.X -= center.X;
+            v.Y -= center.Y;
+
+            float tx = v.X * cos - v.Y * sin;
+            float ty = v.X * sin + v.Y * cos;
+
+            v.X = tx + center.X;
+            v.Y = ty + center.Y;
             return v;
         }
         public static Vector2 TransformPoint(this Vector2 v, Vector2 r, Vector2 f)
