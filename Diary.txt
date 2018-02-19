@@ -123,3 +123,16 @@ Collab effort:
 Lauri: 
 -Experiementing with more effects
 -Added extension method for rotating a vector around a given point
+
+
+- - -
+
+19/02/2018
+
+Anssi:
+-Remade the changes that failed to push 14/02/2018
+-GenerateObstacles()
+
+- - -
+
+2X/02/2018

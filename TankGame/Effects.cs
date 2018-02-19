@@ -12,7 +12,6 @@ namespace TankGame
     public class Explosion : BaseObject
     {
         private float killTime;
-        Random random = new Random();
 
         public Explosion(Vector2 pos, Vector2 fwd)
         {
@@ -33,7 +32,7 @@ namespace TankGame
         public override void Update()
         {
             for (int i = 0; i < meshes[0].vertices.Length; i++)
-                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.4f + forward * 0.05f;
+                meshes[0].vertices[i] = meshes[0].vertices[i] + TankGame.random.OnUnitCircle() * 0.4f + forward * 0.05f;
 
             if (Time.time > killTime)
                 Destroy();
@@ -73,7 +72,6 @@ namespace TankGame
 
     public class Sparks : BaseObject
     {
-        Random random = new Random();
 
         private List<Dot> dots;
         private int prevLength;
@@ -84,7 +82,7 @@ namespace TankGame
 
             dots = new List<Dot>();
 
-            for (int i = 0; i < count; ++i) dots.Add(new Dot(pos, random.OnScaledCircle(-maxSpeed, maxSpeed), random.Range(mimMaxLifeTime.X, mimMaxLifeTime.Y), damping));
+            for (int i = 0; i < count; ++i) dots.Add(new Dot(pos, TankGame.random.OnScaledCircle(-maxSpeed, maxSpeed), TankGame.random.Range(mimMaxLifeTime.X, mimMaxLifeTime.Y), damping));
 
             meshes.Add(new Mesh(count, this, Color.Orange, PrimitiveType.Points));
 
@@ -118,7 +116,6 @@ namespace TankGame
 
     public class SpinningThing : ShatterMesh
     {
-        Random random = new Random();
         List<int> spinDir = new List<int>();
 
         public SpinningThing(Mesh m) : base(m)
@@ -133,7 +130,7 @@ namespace TankGame
             {
                 while (i > spinDir.Count - 1)
                 {
-                    spinDir.Add(ExtensionMethods.Range(random, 0f, 2f) < 1 ? -1 : 1);
+                    spinDir.Add(ExtensionMethods.Range(TankGame.random, 0f, 2f) < 1 ? -1 : 1);
                 }
                 meshes[i].RotateVertices(0.01f * spinDir[i], ExtensionMethods.GetPolyCenter(meshes[i].vertices));
             }
@@ -143,7 +140,7 @@ namespace TankGame
             base.Destroy();
             for (int i = 0; i < meshes.Count; i++)
             {
-                new ExplodeLineLoopToDots(meshes[i], 2, random.Range(0.5f, 2f));
+                new ExplodeLineLoopToDots(meshes[i], 2, TankGame.random.Range(0.5f, 2f));
             }
         }
     }
@@ -227,8 +224,6 @@ namespace TankGame
         float lifeTime = 0.25f;
         Vector3 colorCurrent;
 
-        Random random = new Random();
-
         public MuzzleFlashSmoke(Vector2 pos, Vector2 fwd)
         {
             Mesh SmokeMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.DarkGray, PrimitiveType.LineLoop);
@@ -246,7 +241,7 @@ namespace TankGame
         public override void Update()
         {
             for (int i = 0; i < meshes[0].vertices.Length; i++)
-                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
+                meshes[0].vertices[i] = meshes[0].vertices[i] + TankGame.random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
 
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
@@ -265,8 +260,6 @@ namespace TankGame
         float lifeTime = 0.25f;
         Vector3 colorCurrent;
 
-        Random random = new Random();
-
         public MuzzleFlashFire(Vector2 pos, Vector2 fwd)
         {
             Mesh MuzzleFlashMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.Orange, PrimitiveType.LineLoop);
@@ -284,7 +277,7 @@ namespace TankGame
         public override void Update()
         {
             for (int i = 0; i < meshes[0].vertices.Length; i++)
-                meshes[0].vertices[i] = meshes[0].vertices[i] + random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
+                meshes[0].vertices[i] = meshes[0].vertices[i] + TankGame.random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
 
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
@@ -313,17 +306,15 @@ namespace TankGame
 
     public class Obstacle : BaseObject
     {
-        Random random = new Random();
-
-        public Obstacle(float size, float sizeVar, Vector2 pos)
+        public Obstacle(int angles, float minSize, float maxSize, Vector2 pos)
         {
             
-            Vector2[] v = new Vector2[3];
+            Vector2[] v = new Vector2[angles];
 
             Vector2 c = ExtensionMethods.GetPolyCenter(v);
 
             for (int i = 0; i < v.Length; ++i)
-                v[i] = random.OnScaledCircle(size, size + sizeVar);
+                v[i] = TankGame.random.OnScaledCircle(minSize, maxSize);
 
             for (int i = 0; i < v.Length; ++i)
                 v[i] -= c;
@@ -355,7 +346,6 @@ namespace TankGame
     {
         List<Vector2[]> points = new List<Vector2[]>();
 
-        Random random = new Random();
         List<Dot> dots;
 
         int count;
@@ -379,7 +369,7 @@ namespace TankGame
 
             for (int i = 0; i < points.Count; ++i)
                 for (int e = 0; e < points[i].Length; ++e)
-                    dots.Add(new Dot(points[i][e], random.OnScaledCircle(-2, 2), random.Range(2, 5), 1));
+                    dots.Add(new Dot(points[i][e], TankGame.random.OnScaledCircle(-2, 2), TankGame.random.Range(2, 5), 1));
 
             meshes.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
             position        = _mesh.worldPosition;
@@ -405,7 +395,7 @@ namespace TankGame
 
             for (int i = 0; i < points.Count; ++i)
                 for (int e = 0; e < points[i].Length; ++e)
-                    dots.Add(new Dot(points[i][e], random.OnScaledCircle(-2, 2), lifeTime, 1));
+                    dots.Add(new Dot(points[i][e], TankGame.random.OnScaledCircle(-2, 2), lifeTime, 1));
 
             meshes.Add(new Mesh(count, this, _mesh.color, PrimitiveType.Points));
             position = _mesh.worldPosition;
