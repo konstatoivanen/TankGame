@@ -114,7 +114,55 @@ namespace TankGame
             }
         }
     }
+    public class MuzzleFlashv2 : BaseObject
+    {
+        public MuzzleFlashv2(Vector2 p, Vector2 f)
+        {
+            Mesh m = new Mesh(new Vector2[] { new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1) }, null, Color.Orange, PrimitiveType.Quads);
+            new SpinningObj(p, f, f * 0.1f, m, 0.1f, 1f);
+        }
 
+        public override void Update()
+        {
+            Destroy();
+        }
+    }
+    public class SpinningObj : BaseObject
+    {
+        float spin;
+        float lifeTime;
+        Vector2 moveDir;
+        Vector3 colorCurrent;
+
+        public SpinningObj(Vector2 p, Vector2 f, Vector2 mv, Mesh m, float s, float lt)
+        {
+            position = p;
+            forward = f;
+            meshes.Add(m);
+            spin = s;
+            moveDir = mv;
+            lifeTime = lt;
+            meshes[0].parent = this;
+            colorCurrent = m.color.ToVector();
+            Debug.Log(colorCurrent.ToString());
+            Initialize();
+        }
+
+        public override void Update()
+        {
+            lifeTime -= Time.deltatime;
+            if (lifeTime <= 0)
+                Destroy();
+            position += moveDir;
+            meshes[0].RotateVertices(spin, ExtensionMethods.GetPolyCenter(meshes[0].vertices));
+            ExtensionMethods.ScaleMesh(meshes[0], 0.02f);
+            //Move current color towards 0
+            colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
+
+            //Convert vector3 back to color
+            meshes[0].color = colorCurrent.ToColor();
+        }
+    }
     public class SpinningThing : ShatterMesh
     {
         List<int> spinDir = new List<int>();

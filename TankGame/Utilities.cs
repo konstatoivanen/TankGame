@@ -436,6 +436,18 @@ namespace Utils
 
     public static class ExtensionMethods
     {
+        public static void ScaleMesh(Mesh m, float multiplier)
+        {
+            Vector2 center = GetPolyCenter(m.vertices);
+
+            for (int i = 0; i < m.vertices.Length; i++)
+            {
+                if (multiplier < 0)
+                    m.vertices[i] = Lerp(m.vertices[i], center, -multiplier);
+                else
+                    m.vertices[i] = Lerp(m.vertices[i], m.vertices[i] + m.vertices[i] - center, multiplier);
+            }
+        }
         public static void      IntersectingVertices(Mesh m1, Mesh m2, ref List<Vector2> m1v, ref List<Vector2> m2v)
         {
             Vector2[] v1 = m1.verticesWorldSpace;
