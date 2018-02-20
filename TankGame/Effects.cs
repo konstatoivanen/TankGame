@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using Utils;
@@ -308,13 +309,14 @@ namespace TankGame
     {
         public Obstacle(int angles, float minSize, float maxSize, Vector2 pos)
         {
-            
-            Vector2[] v = new Vector2[angles];
+            //Obsolete!!!
 
-            Vector2 c = ExtensionMethods.GetPolyCenter(v);
+            Vector2[] v = new Vector2[angles];
 
             for (int i = 0; i < v.Length; ++i)
                 v[i] = TankGame.random.OnScaledCircle(minSize, maxSize);
+
+            Vector2 c = ExtensionMethods.GetPolyCenter(v);
 
             for (int i = 0; i < v.Length; ++i)
                 v[i] -= c;
@@ -322,6 +324,16 @@ namespace TankGame
             v = ExtensionMethods.SortPolyClockwise(v, c);
 
             Mesh ObstacleMesh = new Mesh(v, this, Color.Gray, PrimitiveType.LineLoop);
+            meshes.Add(ObstacleMesh);
+            position = pos;
+
+            collider = new Collider(this, meshes[0], PhysicsLayer.Default);
+
+            Initialize();
+        }
+        public Obstacle(float size, Vector2 pos)
+        {
+            Mesh ObstacleMesh = new Mesh(new Vector2[4] { new Vector2(size, size), new Vector2(size, -size), new Vector2(-size, -size), new Vector2(-size, size), }, this, Color.Gray, PrimitiveType.LineLoop);
             meshes.Add(ObstacleMesh);
             position = pos;
 

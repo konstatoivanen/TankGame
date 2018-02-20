@@ -42,7 +42,7 @@ namespace Utils
             m_fwd       = new Vector2(1,0);
 
             TankGame.TankGame.OnUpdate  += Update;
-            TankGame.TankGame.OnRestart += Destroy;
+            TankGame.TankGame.OnRestart += DestroyImmediate;
         }
 
         public virtual void Initialize()
@@ -52,15 +52,21 @@ namespace Utils
             if (meshes != null && meshes.Count > 0) TankGame.TankGame.AddMeshesToRenderStack(meshes);
         }
 
-        public virtual void Destroy()
+        public void DestroyImmediate()
         {
             TankGame.TankGame.OnUpdate  -= Update;
-            TankGame.TankGame.OnRestart -= Destroy;
+            TankGame.TankGame.OnRestart -= DestroyImmediate;
 
             for (int i = 0; i < meshes.Count; ++i)
                 TankGame.TankGame.RemoveMeshFromRenderStack(meshes[i]);
 
             if (collider != null) Physics.Physics.RemoveCollider(collider);
+        }
+
+
+        public virtual void Destroy()
+        {
+            DestroyImmediate();
         }
 
         public void Rotate(float radians)

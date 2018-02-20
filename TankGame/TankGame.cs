@@ -197,9 +197,34 @@ namespace TankGame
         }
         private static void GenerateObstacles()
         {
-            for (int i = 0; i < random.Next(1, 9); ++i)
+            float     gridV   = random.Range(10, battlefieldSize.Y * 0.65f);
+            float     gridH   = random.Range(10, battlefieldSize.X * 0.65f);
+            int       rows    = random.Next(2, 10);
+            int       columns = random.Next(2,10);
+            Vector2[] obsPos  = new Vector2[rows * columns];
+
+            int k = 0;
+            float x, y;
+
+            for (int i = 0; i < rows; ++i)
             {
-                new Obstacle(4, 3.0f, 4.0f, new Vector2(random.Range(-8.0f, 8.0f), random.Range(-8.0f, 8.0f)));
+                y = (float)i / (rows - 1);
+
+                for (int j = 0; j < columns; ++j)
+                {
+                    x = (float)j / (columns - 1);
+
+                    obsPos[k] = new Vector2(x * gridH, y * gridV) - new Vector2(gridH, gridV) * 0.5f;
+
+                    ++k;
+                }
+            }
+
+            float size = Math.Min( gridV / rows,  gridH / columns);
+
+            for (int i = 0; i < obsPos.Length; ++i)
+            {
+                new Obstacle(size * 0.5f, obsPos[i]);
             }
         }
         #endregion
