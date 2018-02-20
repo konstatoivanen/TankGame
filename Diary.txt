@@ -135,4 +135,7 @@ Anssi:
 
 - - -
 
-2X/02/2018
+20/02/2018
+
+Collab effort:
+-Grid based obstacle generation
