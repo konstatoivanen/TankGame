@@ -32,7 +32,7 @@ namespace TankGame
             Mask        = mask;
             speed       = _speed;
 
-            killTime = Time.time + 2;
+            killTime = Time.time + 3;
 
             if (Physics.PointMeshCollision(position, Mask))
             {
@@ -68,8 +68,7 @@ namespace TankGame
             if (Math.Abs(ExtensionMethods.Angle(dir, forward)) < 2)
                 return;
 
-            //Destroy players
-            //if (Hit.other.Layer != PhysicsLayer.Default)
+            if (Hit.other.Layer != PhysicsLayer.Default)
                 Hit.other.parent.Destroy();
 
             Destroy();

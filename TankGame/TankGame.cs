@@ -137,8 +137,8 @@ namespace TankGame
 
             Time.Init();
 
-            player1 = new Tank(1, 1, 1, -new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1), PhysicsLayer.Player1);
-            player2 = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.4f, battlefieldSize.Y * 0.4f), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2), PhysicsLayer.Player2);
+            player1 = new Tank(1, 1, 1, -new Vector2(battlefieldSize.X * 0.5f - 3, battlefieldSize.Y * 0.5f - 2), new Vector2(1, 0), Color.Red, new InputScheme(InputScheme.Preset.Player1), PhysicsLayer.Player1);
+            player2 = new Tank(1, 1, 1, new Vector2(battlefieldSize.X * 0.5f - 3, battlefieldSize.Y * 0.5f - 2), new Vector2(-1, 0), Color.Blue, new InputScheme(InputScheme.Preset.Player2), PhysicsLayer.Player2);
 
             GenerateObstacles();
         }
@@ -197,10 +197,10 @@ namespace TankGame
         }
         private static void GenerateObstacles()
         {
-            float     gridV   = random.Range(10, battlefieldSize.Y * 0.65f);
-            float     gridH   = random.Range(10, battlefieldSize.X * 0.65f);
-            int       rows    = random.Next(2, 10);
-            int       columns = random.Next(2,10);
+            float     gridV   = battlefieldSize.Y;
+            float     gridH   = battlefieldSize.X;
+            int       rows    = 4;
+            int       columns = random.Next(2, (int)Math.Floor(battlefieldSize.X) / 2);
             Vector2[] obsPos  = new Vector2[rows * columns];
 
             int k = 0;
@@ -224,6 +224,12 @@ namespace TankGame
 
             for (int i = 0; i < obsPos.Length; ++i)
             {
+                 if (random.NextDouble() > 0.5f)
+                     continue;
+
+                if ((obsPos[i] - player1.position).LengthSquared < 16 || (obsPos[i] - player2.position).LengthSquared < 16)
+                    continue;
+
                 new Obstacle(size * 0.5f, obsPos[i]);
             }
         }

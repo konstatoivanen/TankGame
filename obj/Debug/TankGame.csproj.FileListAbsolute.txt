@@ -1,8 +1,0 @@
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.exe.config
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.exe
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\bin\Debug\TankGame.pdb
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\bin\Debug\OpenTK.dll
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.csprojResolveAssemblyReference.cache
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.csproj.CoreCompileInputs.cache
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.exe
-C:\Users\anssirem\Documents\GitHub\TankGame\TankGame\obj\Debug\TankGame.pdb

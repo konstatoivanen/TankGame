@@ -15,7 +15,8 @@ namespace Utils.Physics
     {
         Default,
         Player1,
-        Player2        
+        Player2,
+        Destroyable
     }
     public struct   RayCastHit
     {
