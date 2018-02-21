@@ -126,6 +126,20 @@ namespace Utils
             parent      = p;
             vertices    = new Vector2[vertexCount];
         }
+        public Mesh(Vector2[] v,        BaseObject p)
+        {
+            parent = p;
+            vertices = v;
+            color = Color.White;
+            renderMode = PrimitiveType.LineStrip;
+        }
+        public Mesh(Vector2[] v,        BaseObject p, PrimitiveType t)
+        {
+            parent = p;
+            vertices = v;
+            color = Color.White;
+            renderMode = t;
+        }
         public Mesh(int vertexCount,    BaseObject p, Color c, PrimitiveType t)
         {
             parent      = p;
@@ -147,19 +161,16 @@ namespace Utils
             color       = c;
             renderMode  = PrimitiveType.LineStrip;
         }
-        public Mesh(Vector2[] v,        BaseObject p, PrimitiveType t)
+        public Mesh(Mesh m)
         {
-            parent      = p;
-            vertices    = v;
-            color       = Color.White;
-            renderMode  = t;
-        }
-        public Mesh(Vector2[] v,        BaseObject p)
-        {
-            parent      = p;
-            vertices    = v;
-            color       = Color.White;
-            renderMode  = PrimitiveType.LineStrip;
+            parent = m.parent;
+            vertices = new Vector2[m.vertices.Length];
+            for (int i = 0; i < m.vertices.Length; i++)
+            {
+                vertices[i] = m.vertices[i];
+            }
+            color = m.color;
+            renderMode = m.renderMode;
         }
 
         public void Rotate(float radians)
@@ -198,7 +209,9 @@ namespace Utils
         {
             return parent.position + (offset + p).TransformPoint(right, forward);
         }
+
     }
+
     public class DebugMesh
     {
         public PrimitiveType RenderMode;
@@ -989,6 +1002,5 @@ namespace Utils
 
             return (firstOffset.Length < secondOffset.Length) ? 1 : -1;
         }
-
     }
 }

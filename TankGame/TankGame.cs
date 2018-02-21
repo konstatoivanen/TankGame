@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 using Utils;
 using Utils.Physics;
+using System.Linq;
 
 namespace TankGame
 {
@@ -85,7 +86,7 @@ namespace TankGame
 
             m_meshList.Remove(m);
         }
-        public static void RemoveMeshesFromRenderStack(List<Mesh> m)
+        public  static void RemoveMeshesFromRenderStack(List<Mesh> m)
         {
             for (int i = 0; i < m.Count; ++i)
             {
@@ -95,7 +96,7 @@ namespace TankGame
         }
 
         private static List<DebugMesh> m_debugMeshList = new List<DebugMesh>();
-        public static void DrawDebugMesh(DebugMesh m)
+        public  static void DrawDebugMesh(DebugMesh m)
         {
             if (m_debugMeshList.Contains(m))
                 return;

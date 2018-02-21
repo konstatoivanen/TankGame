@@ -48,11 +48,13 @@ namespace TankGame
         public float killTime;
         public float damping;
         public bool alive;
+        public float lifeTime;
 
         public Dot(Vector2 pos, Vector2 vel, float lt, float d)
         {
             position = pos;
             velocity = vel;
+            lifeTime = lt;
             killTime = Time.time + lt;
             damping = d;
             alive = true;
@@ -114,17 +116,55 @@ namespace TankGame
             }
         }
     }
-    public class MuzzleFlashv2 : BaseObject
+    public class MuzzleFlash : BaseObject
     {
-        public MuzzleFlashv2(Vector2 p, Vector2 f)
+        private List<Dot> dots;
+        private int prevLength;
+
+        public MuzzleFlash(Vector2 p, Vector2 f)
         {
-            Mesh m = new Mesh(new Vector2[] { new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 1) }, null, Color.Orange, PrimitiveType.Quads);
-            new SpinningObj(p, f, f * 0.1f, m, 0.1f, 1f);
+            dots = new List<Dot>();
+
+            for (int i = 0; i < 8; i++)
+            {
+                dots.Add(new Dot(p, f.Rotate(TankGame.random.Range(-0.5f, 0.5f)) * TankGame.random.Range(4, 20), TankGame.random.Range(0.3f, 0.8f), 20f));
+                meshes.Add(new Mesh(new Vector2[] {new Vector2(0.3f, 0.3f), new Vector2(-0.3f, 0.3f), new Vector2(-0.3f, -0.3f), new Vector2(0.3f, -0.3f) }, this, Color.White, PrimitiveType.LineLoop));
+                meshes[i].offset = dots[i].position;
+            }
+
+            prevLength = dots.Count;
+
+            Initialize();
         }
 
         public override void Update()
         {
-            Destroy();
+            for (int i = 0; i < dots.Count; ++i) if (!dots[i].alive) dots.Remove(dots[i]);
+
+            while (prevLength > dots.Count)
+            {
+                TankGame.RemoveMeshFromRenderStack(meshes[meshes.Count - 1]);
+                meshes.Remove(meshes[meshes.Count -1]);
+                prevLength--;
+            }
+
+
+            if (prevLength == 0)
+            {
+                Destroy();
+                return;
+            }
+
+            for (int i = 0; i < dots.Count; ++i)
+            {
+                dots[i].Update(Time.deltatime);
+
+                meshes[i].offset = dots[i].position;
+                meshes[i].RotateVertices(i % 2 == 0 ? TankGame.random.Range(-dots[i].velocity.Length * 0.01f, 0) : TankGame.random.Range(0f, dots[i].velocity.Length * 0.01f), ExtensionMethods.GetPolyCenter(meshes[i].vertices));
+                //Move current color towards 0
+                meshes[i].color = ExtensionMethods.MoveTowards(meshes[i].color.ToVector(), new Vector3(1f, 0f, 0f), Time.deltatime * (1f / dots[i].lifeTime)).ToColor();
+                meshes[i].Scale(0.03f);
+            }
         }
     }
     public class SpinningObj : BaseObject
@@ -155,7 +195,7 @@ namespace TankGame
                 Destroy();
             position += moveDir;
             meshes[0].RotateVertices(spin, ExtensionMethods.GetPolyCenter(meshes[0].vertices));
-            meshes[0].Scale(0.02f);
+            meshes[0].Scale(0.03f);
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
 
@@ -262,94 +302,8 @@ namespace TankGame
                 m.vertices[i] = ExtensionMethods.Lerp(m.vertices[i], center, multiplier);
             }
         }   
-    }
-    
+    }    
 
-    public class MuzzleFlashSmoke : BaseObject
-    {
-        float timer = 0;
-        float lifeTime = 0.25f;
-        Vector3 colorCurrent;
-
-        public MuzzleFlashSmoke(Vector2 pos, Vector2 fwd)
-        {
-            Mesh SmokeMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.DarkGray, PrimitiveType.LineLoop);
-            meshes.Add(SmokeMesh);
-
-            position            = pos;
-            SmokeMesh.forward   = fwd;
-
-            //Convert color to vector3
-            colorCurrent = SmokeMesh.color.ToVector();
-
-            Initialize();
-        }
-
-        public override void Update()
-        {
-            for (int i = 0; i < meshes[0].vertices.Length; i++)
-                meshes[0].vertices[i] = meshes[0].vertices[i] + TankGame.random.OnUnitCircle() * 0.1f + new Vector2(1, 0) * 0.005f;
-
-            //Move current color towards 0
-            colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
-
-            //Convert vector3 back to color
-            meshes[0].color = colorCurrent.ToColor();
-
-            timer += Time.deltatime;
-            if (timer > lifeTime)
-                Destroy();
-        }
-    }
-    public class MuzzleFlashFire : BaseObject
-    {
-        float timer = 0;
-        float lifeTime = 0.25f;
-        Vector3 colorCurrent;
-
-        public MuzzleFlashFire(Vector2 pos, Vector2 fwd)
-        {
-            Mesh MuzzleFlashMesh = new Mesh(new Vector2[] { new Vector2(3, -1), new Vector2(3, 1), new Vector2(1, 0.5f), new Vector2(0, 0), new Vector2(1, -0.5f) }, this, Color.Orange, PrimitiveType.LineLoop);
-
-            meshes.Add(MuzzleFlashMesh);
-
-            position                = pos;
-            MuzzleFlashMesh.forward = fwd;
-
-            colorCurrent = MuzzleFlashMesh.color.ToVector();
-
-            Initialize();
-        }
-
-        public override void Update()
-        {
-            for (int i = 0; i < meshes[0].vertices.Length; i++)
-                meshes[0].vertices[i] = meshes[0].vertices[i] + TankGame.random.OnUnitCircle() * 0.05f + new Vector2(1, 0) * 0.01f;
-
-            //Move current color towards 0
-            colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
-
-            //Convert vector3 back to color
-            meshes[0].color = colorCurrent.ToColor();
-
-            timer += Time.deltatime;
-            if (timer > lifeTime)
-                Destroy();
-        }
-    }
-
-    public class MuzzleFlash
-    {
-        public MuzzleFlash(Vector2 pos, Vector2 fwd)
-        {
-            MuzzleFlashSmoke smoke0 = new MuzzleFlashSmoke(pos - fwd * 0.5f, fwd.Rotate(0.4f));
-            MuzzleFlashSmoke smoke1 = new MuzzleFlashSmoke(pos - fwd * 0.5f, fwd.Rotate(-0.4f));
-            MuzzleFlashSmoke smoke2 = new MuzzleFlashSmoke(pos + fwd * 0.8f, fwd);
-            MuzzleFlashFire fire0 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(0.2f));
-            MuzzleFlashFire fire1 = new MuzzleFlashFire(pos - fwd * 0.5f, fwd.Rotate(-0.2f));
-            MuzzleFlashFire fire2 = new MuzzleFlashFire(pos + fwd * 0.2f, fwd);
-        }
-    }
 
     public class Obstacle : BaseObject
     {

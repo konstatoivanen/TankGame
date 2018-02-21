@@ -50,8 +50,8 @@ namespace TankGame
             input           = input0;
 
             for(int i = 0; i < meshes.Count; ++i)
-                meshes[i].forward     = direction;
-
+                meshes[i].forward = direction;
+           
             collider = new Collider(this, meshes[0], layer);
 
             Initialize();
@@ -92,8 +92,7 @@ namespace TankGame
                 return;
 
             new Projectile(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward, 20, collider.Layer);
-            //new MuzzleFlash(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward);
-            new MuzzleFlashv2(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward);
+            new MuzzleFlash(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward);
         }
 
         private void LocomotionUpdate(float delta)
