@@ -206,7 +206,10 @@ namespace TankGame
             obsList[obsList.Count - 1].DestroyImmediate();
             obsList.RemoveAt(obsList.Count - 1);
 
-            obsList.CullRandom(0.25f);
+            obsList[0].DestroyImmediate();
+            obsList.RemoveAt(0);
+
+            obsList.CullRandom(0.35f);
         }
         #endregion
     }

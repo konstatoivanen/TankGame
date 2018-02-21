@@ -471,24 +471,25 @@ namespace Utils
                     pos.X = ExtensionMethods.Lerp(start.X, end.X, (float)j / (countX - 1));
 
                     result.Add(new Obstacle(baseScale * scaling, pos, TankGame.TankGame.random.NextDouble() > 0.75));
+                    result[result.Count - 1].Rotate(TankGame.TankGame.random.Range(-3, 3));
                 }
             }
 
-            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X));
+            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.5f));
 
             List<Vector2> v = new List<Vector2>();
 
             for (int i = 0; i < graph.Count; i++)
             {
-                v.Add(new Vector2((float)graph[i].x1, (float)graph[i].y1));
-                v.Add(new Vector2((float)graph[i].x2, (float)graph[i].y2));
+                v.Add(graph[i].p1);
+                v.Add(graph[i].p2);
             }
 
-            result[0].position = Vector2.Zero;
+    //        result[0].position = Vector2.Zero;
 
-            Mesh m = new Mesh(v.ToArray(), result[0], Color.Green, PrimitiveType.Lines);
+  //          Mesh m = new Mesh(v.ToArray(), result[0], Color.Green, PrimitiveType.Lines);
 
-            TankGame.TankGame.AddMeshToRenderStack(m);
+//            TankGame.TankGame.AddMeshToRenderStack(m);
 
             return result;
         }

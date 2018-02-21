@@ -117,6 +117,18 @@ namespace Voronoi2
     {
         public double x1, y1, x2, y2;
         public int site1, site2;
+
+        public OpenTK.Vector2 p1 { get { return new OpenTK.Vector2((float)x1, (float)y1); } }
+        public OpenTK.Vector2 p2 { get { return new OpenTK.Vector2((float)x2, (float)y2); } }
+
+        public bool ContainsPoint1(OpenTK.Vector2 v)
+        {
+            return (p1 - v).LengthSquared < 0.05f;
+        }
+        public bool ContainsPoint2(OpenTK.Vector2 v)
+        {
+            return (p2 - v).LengthSquared < 0.05f;
+        }
     }
 
     // للترتيب
