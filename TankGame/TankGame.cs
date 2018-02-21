@@ -198,9 +198,6 @@ namespace TankGame
         }
         private static void GenerateObstacles()
         {
-            Vector2   v1, v2;
-
-
             List<Obstacle> obsList = LevelGeneration.GenerateGrid(battlefieldSize * 0.5f - new Vector2(2,2), -battlefieldSize * 0.5f + new Vector2(2,2), (int)Math.Floor(battlefieldSize.X) / 6, 4, 0.75f);
 
             obsList.CullRandom(0.25f);

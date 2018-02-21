@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using TankGame;
+using Voronoi2;
 
 namespace Utils
 {
@@ -473,6 +474,34 @@ namespace Utils
                 }
             }
 
+
+            double[] xVal = new double[32];
+            double[] yVal = new double[32];
+
+            for (int i = 0; i < xVal.Length; i++)
+            {
+                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
+                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+            }
+
+            Voronoi voroObject = new Voronoi(0.1);
+
+            List<GraphEdge> graph = voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f, -TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+
+            List<Vector2> v = new List<Vector2>();
+
+            for (int i = 0; i < graph.Count; i++)
+            {
+                v.Add(new Vector2((float)graph[i].x1, (float)graph[i].y1));
+                v.Add(new Vector2((float)graph[i].x2, (float)graph[i].y2));
+            }
+
+            result[0].position = Vector2.Zero;
+
+            Mesh m = new Mesh(v.ToArray(), result[0], Color.Green, PrimitiveType.Lines);
+
+            TankGame.TankGame.AddMeshToRenderStack(m);
+
             return result;
         }
 
@@ -877,6 +906,11 @@ namespace Utils
         public static Vector2 Reflect(Vector2 dir, Vector2 nor)
         {
             return -2f * Vector2.Dot(nor, dir) * nor + dir;
+        }
+        public static void    Set(this Vector2 v, float x, float y)
+        {
+            v.X = x;
+            v.Y = y;
         }
         public static float   Lerp(float a, float b, float t)
         {
