@@ -474,19 +474,7 @@ namespace Utils
                 }
             }
 
-
-            double[] xVal = new double[32];
-            double[] yVal = new double[32];
-
-            for (int i = 0; i < xVal.Length; i++)
-            {
-                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
-                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
-            }
-
-            Voronoi voroObject = new Voronoi(0.1);
-
-            List<GraphEdge> graph = voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f, -TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X));
 
             List<Vector2> v = new List<Vector2>();
 
@@ -505,31 +493,26 @@ namespace Utils
             return result;
         }
 
+        public static List<GraphEdge> GenerateVoronoi(int count)
+        {
+
+            double[] xVal = new double[count];
+            double[] yVal = new double[count];
+
+            for (int i = 0; i < xVal.Length; i++)
+            {
+                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
+                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+            }
+
+            Voronoi voroObject = new Voronoi(0.1);
+
+            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f, -TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+        }
+
         public static List<Obstacle> CullRandom(this List<Obstacle> o, float chance)
         {
             for (int i = 0; i < o.Count; ++i) if (TankGame.TankGame.random.NextDouble() < chance) { o[i].DestroyImmediate(); o.Remove(o[i]); }
-            return o;
-        }
-        public static List<Obstacle> CullByPlayerProximity(this List<Obstacle> o, float proximity)
-        {
-            float b0 = TankGame.TankGame.player1.meshes[0].Bounds().extents.Length;
-            float b1 = TankGame.TankGame.player2.meshes[0].Bounds().extents.Length;
-
-            for (int i = 0; i < o.Count; ++i)
-            {
-                if((TankGame.TankGame.player1.position - o[i].position).Length <  o[i].meshes[0].Bounds().extents.Length + b0 + proximity)
-                {
-                    o[i].DestroyImmediate();
-                    o.Remove(o[i]);
-                    continue;
-                }
-
-                if ((TankGame.TankGame.player2.position - o[i].position).Length < o[i].meshes[0].Bounds().extents.Length + b1 + proximity)
-                {
-                    o[i].DestroyImmediate();
-                    o.Remove(o[i]);
-                }
-            }
             return o;
         }
     }

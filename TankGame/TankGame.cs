@@ -200,46 +200,13 @@ namespace TankGame
         {
             List<Obstacle> obsList = LevelGeneration.GenerateGrid(battlefieldSize * 0.5f - new Vector2(2,2), -battlefieldSize * 0.5f + new Vector2(2,2), (int)Math.Floor(battlefieldSize.X) / 6, 4, 0.75f);
 
+            Debug.Log((obsList[obsList.Count - 1].position - player1.position).ToString());
+            Debug.Log((obsList[obsList.Count - 1].position - player2.position).ToString());
+
+            obsList[obsList.Count - 1].DestroyImmediate();
+            obsList.RemoveAt(obsList.Count - 1);
+
             obsList.CullRandom(0.25f);
-            obsList.CullByPlayerProximity(8);
-
-           /* int k = 0;
-            float x, y;
-
-            float size = Math.Min( gridV / rows,  gridH / columns);
-
-            for (int i = 0; i < obsList.Count; ++i)
-            {
-                v1 = Vector2.Zero;
-                v2 = Vector2.Zero;
-
-                for (int j = 0; j < obsList.Count; ++j)
-                {
-                    v1 = obsList[j].position - obsList[i].position;
-                    x = new Bounds(obsList[j].meshes[0]).extents.Length + new Bounds(obsList[i].meshes[0]).extents.Length;
-
-                    if (v1.Length > x + 2)
-                        continue;
-
-                    v2 += v1;
-                }
-
-                obsList[i].position -= v2;
-            }
-
-            for (int i = 0; i < obsList.Count; ++i)
-            {
-                v2 = Vector2.Zero;
-                x = new Bounds(obsList[i].meshes[0]).extents.Length;
-                if ((obsList[i].position - player1.position).LengthSquared < x * x + 8)
-                    v2 -= (obsList[i].position - player1.position).Normalized() * x;
-
-                x = new Bounds(obsList[i].meshes[0]).extents.Length;
-                if ((obsList[i].position - player2.position).LengthSquared < x * x + 8)
-                    v2 -= (obsList[i].position - player2.position).Normalized() * x;
-
-                obsList[i].position -= v2;
-            }*/
         }
         #endregion
     }
