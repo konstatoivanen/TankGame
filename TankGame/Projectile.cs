@@ -65,7 +65,9 @@ namespace TankGame
 
             Sparks s = new Sparks(Hit.contact.point, 64, 4, new Vector2(0.05f, 1f), 1f);
 
-            if (Math.Abs(ExtensionMethods.Angle(dir, forward)) < 2)
+            float angle = Math.Abs(ExtensionMethods.Angle(dir, forward));
+
+            if (angle < 2 && angle != 0)
                 return;
 
             if (Hit.other.Layer != PhysicsLayer.Default)
