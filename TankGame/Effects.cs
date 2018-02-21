@@ -379,9 +379,9 @@ namespace TankGame
 
             Initialize();
         }
-        public Obstacle(float size, Vector2 pos)
+        public Obstacle(Vector2 size, Vector2 pos)
         {
-            Mesh ObstacleMesh = new Mesh(new Vector2[4] { new Vector2(size, size), new Vector2(size, -size), new Vector2(-size, -size), new Vector2(-size, size), }, this, Color.Gray, PrimitiveType.LineLoop);
+            Mesh ObstacleMesh = new Mesh(new Vector2[4] { size, new Vector2(size.X, -size.Y), -size, new Vector2(-size.X, size.Y), }, this, Color.Gray, PrimitiveType.LineLoop);
             meshes.Add(ObstacleMesh);
             position = pos;
 

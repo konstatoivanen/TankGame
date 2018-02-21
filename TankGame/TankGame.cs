@@ -202,6 +202,8 @@ namespace TankGame
             int       rows    = 4;
             int       columns = random.Next(2, (int)Math.Floor(battlefieldSize.X) / 2);
             Vector2[] obsPos  = new Vector2[rows * columns];
+            Vector2   v1, v2;
+            List<Obstacle> obsList = new List<Obstacle>();
 
             int k = 0;
             float x, y;
@@ -227,10 +229,40 @@ namespace TankGame
                  if (random.NextDouble() > 0.5f)
                      continue;
 
-                if ((obsPos[i] - player1.position).LengthSquared < 16 || (obsPos[i] - player2.position).LengthSquared < 16)
-                    continue;
+                obsList.Add(new Obstacle(new Vector2(random.Range(size, size * 2),random.Range(size, size * 2))*0.4f, obsPos[i]));
+            }
 
-                new Obstacle(size * 0.5f, obsPos[i]);
+            for (int i = 0; i < obsList.Count; ++i)
+            {
+                v1 = Vector2.Zero;
+                v2 = Vector2.Zero;
+
+                for (int j = 0; j < obsList.Count; ++j)
+                {
+                    v1 = obsList[j].position - obsList[i].position;
+                    x = new Bounds(obsList[j].meshes[0]).extents.Length + new Bounds(obsList[i].meshes[0]).extents.Length;
+
+                    if (v1.Length > x + 2)
+                        continue;
+
+                    v2 += v1;
+                }
+
+                obsList[i].position -= v2;
+            }
+
+            for (int i = 0; i < obsList.Count; ++i)
+            {
+                v2 = Vector2.Zero;
+                x = new Bounds(obsList[i].meshes[0]).extents.Length;
+                if ((obsList[i].position - player1.position).LengthSquared < x * x + 8)
+                    v2 -= (obsList[i].position - player1.position).Normalized() * x;
+
+                x = new Bounds(obsList[i].meshes[0]).extents.Length;
+                if ((obsList[i].position - player2.position).LengthSquared < x * x + 8)
+                    v2 -= (obsList[i].position - player2.position).Normalized() * x;
+
+                obsList[i].position -= v2;
             }
         }
         #endregion
