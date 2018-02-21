@@ -119,7 +119,8 @@ namespace TankGame
     public class MuzzleFlash : BaseObject
     {
         private List<Dot> dots;
-        private int prevLength;
+        private int     prevLength;
+        private Vector3 startColor;
 
         public MuzzleFlash(Vector2 p, Vector2 f)
         {
@@ -127,11 +128,12 @@ namespace TankGame
 
             for (int i = 0; i < 8; i++)
             {
-                dots.Add(new Dot(p, f.Rotate(TankGame.random.Range(-0.5f, 0.5f)) * TankGame.random.Range(4, 20), TankGame.random.Range(0.3f, 0.8f), 20f));
+                dots.Add(new Dot(p, f.Rotate(TankGame.random.Range(-0.25f, 0.25f)) * TankGame.random.Range(4, 20), TankGame.random.Range(0.3f, 0.8f), 20f));
                 meshes.Add(new Mesh(new Vector2[] {new Vector2(0.3f, 0.3f), new Vector2(-0.3f, 0.3f), new Vector2(-0.3f, -0.3f), new Vector2(0.3f, -0.3f) }, this, Color.White, PrimitiveType.LineLoop));
                 meshes[i].offset = dots[i].position;
             }
 
+            startColor = Vector3.One;
             prevLength = dots.Count;
 
             Initialize();
@@ -160,10 +162,11 @@ namespace TankGame
                 dots[i].Update(Time.deltatime);
 
                 meshes[i].offset = dots[i].position;
-                meshes[i].RotateVertices(i % 2 == 0 ? TankGame.random.Range(-dots[i].velocity.Length * 0.01f, 0) : TankGame.random.Range(0f, dots[i].velocity.Length * 0.01f), ExtensionMethods.GetPolyCenter(meshes[i].vertices));
+                meshes[i].RotateVertices(i % 2 == 0 ? -dots[i].velocity.Length * 0.01f : dots[i].velocity.Length * 0.01f, ExtensionMethods.GetPolyCenter(meshes[i].vertices));
+
                 //Move current color towards 0
-                meshes[i].color = ExtensionMethods.MoveTowards(meshes[i].color.ToVector(), new Vector3(1f, 0f, 0f), Time.deltatime * (1f / dots[i].lifeTime)).ToColor();
-                meshes[i].Scale(0.03f);
+                meshes[i].color = ExtensionMethods.Lerp(Vector3.Zero, startColor, (dots[i].killTime - Time.time) / dots[i].lifeTime).ToColor();
+                meshes[i].Scale(2 * Time.deltatime);
             }
         }
     }
@@ -283,13 +286,11 @@ namespace TankGame
             Vector2 center = ExtensionMethods.GetPolyCenter(m.verticesWorldSpace);            
 
             for (int i = 0; i < m.verticesWorldSpace.Length; i++)
-            {
                 midPoints.Add((m.verticesWorldSpace[i + 1 == m.verticesWorldSpace.Length ? 0 : i + 1] + m.verticesWorldSpace[i])/2);
-            }
+
             for (int i = 0; i < midPoints.Count; i++)
-            {
                 list.Add(new Mesh(new Vector2[] {m.verticesWorldSpace[i], midPoints[i], center, midPoints[i - 1 < 0 ? midPoints.Count - 1 : i - 1], m.verticesWorldSpace[i] }, m.parent, m.color));
-            }
+
             return list;
         }
 
@@ -297,10 +298,8 @@ namespace TankGame
         {
             Vector2 center = ExtensionMethods.GetPolyCenter(m.vertices);
 
-            for (int i = 0; i < m.vertices.Length; i++)
-            {                
+            for (int i = 0; i < m.vertices.Length; i++)               
                 m.vertices[i] = ExtensionMethods.Lerp(m.vertices[i], center, multiplier);
-            }
         }   
     }    
 

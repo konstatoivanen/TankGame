@@ -870,6 +870,10 @@ namespace Utils
         {
             return new Vector2(Lerp(a.X, b.X, t.Clamp01()), Lerp(a.Y, b.Y, t.Clamp01()));
         }
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+        {
+            return new Vector3(Lerp(a.X, b.X, t.Clamp01()), Lerp(a.Y, b.Y, t.Clamp01()), Lerp(a.Z, b.Z, t.Clamp01()));
+        }
         public static Vector2 Reflect(Vector2 dir, Vector2 nor)
         {
             return -2f * Vector2.Dot(nor, dir) * nor + dir;
@@ -912,9 +916,8 @@ namespace Utils
         public static Color   ToColor(this Vector3 v)
         {
             Vector3 v1 = v;
-            v1  *= 255;
-
-            return Color.FromArgb(1, (int)Math.Round(v1.X), (int)Math.Round(v1.X), (int)Math.Round(v1.X));
+            v1  *= 255;        
+            return Color.FromArgb((int)Math.Round(v1.X), (int)Math.Round(v1.X), (int)Math.Round(v1.X));
         }
         public static Vector3 ToVector(this Color c)
         {
