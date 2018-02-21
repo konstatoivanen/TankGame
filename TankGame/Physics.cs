@@ -13,10 +13,10 @@ namespace Utils.Physics
     [Flags]
     public enum     PhysicsLayer
     {
+        Destroyable,
         Default,
         Player1,
-        Player2,
-        Destroyable
+        Player2
     }
     public struct   RayCastHit
     {

@@ -379,13 +379,13 @@ namespace TankGame
 
             Initialize();
         }
-        public Obstacle(Vector2 size, Vector2 pos)
+        public Obstacle(Vector2 size, Vector2 pos, bool destroyable)
         {
-            Mesh ObstacleMesh = new Mesh(new Vector2[4] { size, new Vector2(size.X, -size.Y), -size, new Vector2(-size.X, size.Y), }, this, Color.Gray, PrimitiveType.LineLoop);
+            Mesh ObstacleMesh = new Mesh(new Vector2[4] { size, new Vector2(size.X, -size.Y), -size, new Vector2(-size.X, size.Y), }, this, destroyable? Color.Beige : Color.Gray, PrimitiveType.LineLoop);
             meshes.Add(ObstacleMesh);
             position = pos;
 
-            collider = new Collider(this, meshes[0], PhysicsLayer.Default);
+            collider = new Collider(this, meshes[0], destroyable? PhysicsLayer.Destroyable : PhysicsLayer.Default);
 
             Initialize();
         }

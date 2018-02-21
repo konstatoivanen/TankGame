@@ -229,7 +229,7 @@ namespace TankGame
                  if (random.NextDouble() > 0.5f)
                      continue;
 
-                obsList.Add(new Obstacle(new Vector2(random.Range(size, size * 2),random.Range(size, size * 2))*0.4f, obsPos[i]));
+                obsList.Add(new Obstacle(new Vector2(random.Range(size, size * 2),random.Range(size, size * 2))*0.4f, obsPos[i], random.NextDouble() > 0.7f));
             }
 
             for (int i = 0; i < obsList.Count; ++i)
