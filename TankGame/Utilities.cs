@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using TankGame;
 
 namespace Utils
 {
@@ -434,9 +435,70 @@ namespace Utils
         }
     }
 
+    public static class LevelGeneration
+    {
+        public static List<Obstacle> GenerateGrid(Vector2 start, Vector2 end, int countX, int countY, float scaling)
+        {
+            Vector2 baseScale       = end - start;
+                    baseScale.X    /= countX;
+                    baseScale.Y    /= countY;
+                    baseScale      *= 0.5f;
+
+            Vector2 pos;
+
+            List<Obstacle> result = new List<Obstacle>();
+
+            for(int i = 0; i < countY; ++i)
+            {
+                pos.Y = ExtensionMethods.Lerp(start.Y, end.Y, (float)i / (countY - 1));
+
+                for (int j = 0; j < countX; ++j)
+                {
+                    pos.X = ExtensionMethods.Lerp(start.X, end.X, (float)j / (countX - 1));
+
+                    result.Add(new Obstacle(baseScale * scaling, pos, TankGame.TankGame.random.NextDouble() > 0.75));
+                }
+            }
+
+            return result;
+        }
+
+        public static List<Obstacle> CullRandom(this List<Obstacle> o, float chance)
+        {
+            for (int i = 0; i < o.Count; ++i) if (TankGame.TankGame.random.NextDouble() < chance) { o[i].DestroyImmediate(); o.Remove(o[i]); }
+            return o;
+        }
+        public static List<Obstacle> CullByPlayerProximity(this List<Obstacle> o, float proximity)
+        {
+            float b0 = TankGame.TankGame.player1.meshes[0].Bounds().extents.Length;
+            float b1 = TankGame.TankGame.player2.meshes[0].Bounds().extents.Length;
+
+            for (int i = 0; i < o.Count; ++i)
+            {
+                if((TankGame.TankGame.player1.position - o[i].position).Length <  o[i].meshes[0].Bounds().extents.Length + b0 + proximity)
+                {
+                    o[i].DestroyImmediate();
+                    o.Remove(o[i]);
+                    continue;
+                }
+
+                if ((TankGame.TankGame.player2.position - o[i].position).Length < o[i].meshes[0].Bounds().extents.Length + b1 + proximity)
+                {
+                    o[i].DestroyImmediate();
+                    o.Remove(o[i]);
+                }
+            }
+            return o;
+        }
+    }
+
     public static class ExtensionMethods
     {
-        public static void ScaleMesh(Mesh m, float multiplier)
+        public static Bounds    Bounds(this Mesh m)
+        {
+            return new Bounds(m);
+        }
+        public static void      Scale(this Mesh m, float multiplier)
         {
             Vector2 center = GetPolyCenter(m.vertices);
 
@@ -448,6 +510,7 @@ namespace Utils
                     m.vertices[i] = Lerp(m.vertices[i], m.vertices[i] + m.vertices[i] - center, multiplier);
             }
         }
+
         public static void      IntersectingVertices(Mesh m1, Mesh m2, ref List<Vector2> m1v, ref List<Vector2> m2v)
         {
             Vector2[] v1 = m1.verticesWorldSpace;
@@ -814,6 +877,10 @@ namespace Utils
         public static float   Clamp(float f, float min, float max)
         {
             return f < min ? min : f > max ? max : f;
+        }
+        public static float   Repeat01(float f)
+        {
+            return f - (float)Math.Floor(f);
         }
         public static float   MoveTowards(float current, float target, float maxDelta)
         {

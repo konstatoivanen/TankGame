@@ -10,7 +10,7 @@ namespace Utils.Physics
         Box,
         Mesh
     }
-    [Flags]
+
     public enum     PhysicsLayer
     {
         Destroyable,
@@ -104,7 +104,7 @@ namespace Utils.Physics
             for (int i = 0; i < m_colliderList.Count; ++i)
             {
                 //Is the collider in the cast mask
-                if (m_colliderList[i].Layer.HasFlag(mask))
+                if (m_colliderList[i].Layer == mask)
                     continue;
                     
                 //Collider specific intersection methods
@@ -148,7 +148,7 @@ namespace Utils.Physics
             for (int i = 0; i < m_colliderList.Count; ++i)
             {
                 //Is the collider in the cast mask
-                if (m_colliderList[i].Layer.HasFlag(mask))
+                if (m_colliderList[i].Layer == mask)
                     continue;
 
                 if (m_colliderList[i].Type != ColliderType.Mesh)
@@ -183,7 +183,7 @@ namespace Utils.Physics
                     continue;
 
                 //Is the collider in the mask
-                if (m_colliderList[i].Layer.HasFlag(c.Layer))
+                if (m_colliderList[i].Layer == c.Layer)
                    continue;
 
                 //Do the meshes intersect?
@@ -273,7 +273,7 @@ namespace Utils.Physics
                     continue;
 
                 //Is the collider in the mask
-                if (m_colliderList[i].Layer.HasFlag(c.Layer))
+                if (m_colliderList[i].Layer == c.Layer)
                    continue;
 
                 //Do the meshes intersect?

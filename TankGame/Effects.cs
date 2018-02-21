@@ -155,7 +155,7 @@ namespace TankGame
                 Destroy();
             position += moveDir;
             meshes[0].RotateVertices(spin, ExtensionMethods.GetPolyCenter(meshes[0].vertices));
-            ExtensionMethods.ScaleMesh(meshes[0], 0.02f);
+            meshes[0].Scale(0.02f);
             //Move current color towards 0
             colorCurrent = ExtensionMethods.MoveTowards(colorCurrent, Vector3.Zero, Time.deltatime * (1f / lifeTime));
 
@@ -261,9 +261,7 @@ namespace TankGame
             {                
                 m.vertices[i] = ExtensionMethods.Lerp(m.vertices[i], center, multiplier);
             }
-        }
-
-        
+        }   
     }
     
 

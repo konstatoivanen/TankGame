@@ -197,40 +197,18 @@ namespace TankGame
         }
         private static void GenerateObstacles()
         {
-            float     gridV   = battlefieldSize.Y;
-            float     gridH   = battlefieldSize.X;
-            int       rows    = 4;
-            int       columns = random.Next(2, (int)Math.Floor(battlefieldSize.X) / 2);
-            Vector2[] obsPos  = new Vector2[rows * columns];
             Vector2   v1, v2;
-            List<Obstacle> obsList = new List<Obstacle>();
 
-            int k = 0;
+
+            List<Obstacle> obsList = LevelGeneration.GenerateGrid(battlefieldSize * 0.5f - new Vector2(2,2), -battlefieldSize * 0.5f + new Vector2(2,2), (int)Math.Floor(battlefieldSize.X) / 6, 4, 0.75f);
+
+            obsList.CullRandom(0.25f);
+            obsList.CullByPlayerProximity(8);
+
+           /* int k = 0;
             float x, y;
 
-            for (int i = 0; i < rows; ++i)
-            {
-                y = (float)i / (rows - 1);
-
-                for (int j = 0; j < columns; ++j)
-                {
-                    x = (float)j / (columns - 1);
-
-                    obsPos[k] = new Vector2(x * gridH, y * gridV) - new Vector2(gridH, gridV) * 0.5f;
-
-                    ++k;
-                }
-            }
-
             float size = Math.Min( gridV / rows,  gridH / columns);
-
-            for (int i = 0; i < obsPos.Length; ++i)
-            {
-                 if (random.NextDouble() > 0.5f)
-                     continue;
-
-                obsList.Add(new Obstacle(new Vector2(random.Range(size, size * 2),random.Range(size, size * 2))*0.4f, obsPos[i], random.NextDouble() > 0.7f));
-            }
 
             for (int i = 0; i < obsList.Count; ++i)
             {
@@ -263,7 +241,7 @@ namespace TankGame
                     v2 -= (obsList[i].position - player2.position).Normalized() * x;
 
                 obsList[i].position -= v2;
-            }
+            }*/
         }
         #endregion
     }
