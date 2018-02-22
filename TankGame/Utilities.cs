@@ -536,7 +536,7 @@ namespace Utils
 
             Voronoi voroObject = new Voronoi(0.1);
 
-            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X, TankGame.TankGame.battlefieldSize.X, -TankGame.TankGame.battlefieldSize.Y, TankGame.TankGame.battlefieldSize.Y);
+            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 2, TankGame.TankGame.battlefieldSize.X * 2, -TankGame.TankGame.battlefieldSize.Y * 2, TankGame.TankGame.battlefieldSize.Y * 2);
         }
         public static List<GraphEdge> GenerateVoronoi(int count, out Vector2[] vertices)
         {
@@ -552,7 +552,7 @@ namespace Utils
 
             Voronoi voroObject = new Voronoi(0.1);
 
-            List<GraphEdge> result = voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X, TankGame.TankGame.battlefieldSize.X, -TankGame.TankGame.battlefieldSize.Y, TankGame.TankGame.battlefieldSize.Y);
+            List<GraphEdge> result = voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 2, TankGame.TankGame.battlefieldSize.X * 2, -TankGame.TankGame.battlefieldSize.Y * 2, TankGame.TankGame.battlefieldSize.Y * 2);
 
             vertices = voroObject.sitesToVertices;
 
