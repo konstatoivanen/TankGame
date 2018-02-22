@@ -198,18 +198,15 @@ namespace TankGame
         }
         private static void GenerateObstacles()
         {
-            List<Obstacle> obsList = LevelGeneration.GenerateGrid(battlefieldSize * 0.5f - new Vector2(2,2), -battlefieldSize * 0.5f + new Vector2(2,2), (int)Math.Floor(battlefieldSize.X) / 6, 4, 0.75f);
-
-            Debug.Log((obsList[obsList.Count - 1].position - player1.position).ToString());
-            Debug.Log((obsList[obsList.Count - 1].position - player2.position).ToString());
+            List<Obstacle> obsList = LevelGeneration.GenerateVoronoiCells(); //LevelGeneration.GenerateGrid(battlefieldSize * 0.5f - new Vector2(2,2), -battlefieldSize * 0.5f + new Vector2(2,2), (int)Math.Floor(battlefieldSize.X) / 6, 4, 0.75f);
 
             obsList[obsList.Count - 1].DestroyImmediate();
             obsList.RemoveAt(obsList.Count - 1);
 
-            obsList[0].DestroyImmediate();
-            obsList.RemoveAt(0);
+            //obsList[0].DestroyImmediate();
+           // obsList.RemoveAt(0);
 
-            obsList.CullRandom(0.35f);
+          //  obsList.CullRandom(0.35f);
         }
         #endregion
     }

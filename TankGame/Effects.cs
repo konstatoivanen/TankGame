@@ -340,6 +340,23 @@ namespace TankGame
 
             Initialize();
         }
+        public Obstacle(Vector2[] v,  bool destroyable)
+        {
+
+            Vector2 c = ExtensionMethods.GetPolyCenter(v);
+
+            Mesh m = new Mesh(v, this, Color.Gray, PrimitiveType.LineLoop);
+
+            m.offset = -c;
+
+            meshes.Add(m);
+
+            position = c;
+
+            collider = new Collider(this, meshes[0], destroyable ? PhysicsLayer.Destroyable : PhysicsLayer.Default);
+
+            Initialize();
+        }
         public override void Destroy()
         {
             for (int i = 0; i < meshes.Count; i++)

@@ -156,6 +156,19 @@ namespace Voronoi2
 		 * Private methods - implementation details
 		 ********************************************************/
 
+        public OpenTK.Vector2[] sitesToVertices
+        {
+            get
+            {
+                OpenTK.Vector2[] v = new OpenTK.Vector2[sites.Length];
+
+                for (int i = 0; i < v.Length; ++i) 
+                    v[i] = new OpenTK.Vector2((float)sites[i].coord.x, (float)sites[i].coord.y);
+
+                return v;
+            }
+        }
+
         private void sort(double[] xValuesIn, double[] yValuesIn, int count)
         {
             sites = null;

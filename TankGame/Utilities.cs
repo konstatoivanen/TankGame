@@ -453,43 +453,71 @@ namespace Utils
     {
         public static List<Obstacle> GenerateGrid(Vector2 start, Vector2 end, int countX, int countY, float scaling)
         {
-            Vector2 baseScale       = end - start;
-                    baseScale.X    /= countX;
-                    baseScale.Y    /= countY;
-                    baseScale      *= 0.5f;
+              Vector2 baseScale       = end - start;
+                      baseScale.X    /= countX;
+                      baseScale.Y    /= countY;
+                      baseScale      *= 0.5f;
 
-            Vector2 pos;
+              Vector2 pos;
 
+              List<Obstacle> result = new List<Obstacle>();
+
+              for(int i = 0; i < countY; ++i)
+              {
+                  pos.Y = ExtensionMethods.Lerp(start.Y, end.Y, (float)i / (countY - 1));
+
+                  for (int j = 0; j < countX; ++j)
+                  {
+                      pos.X = ExtensionMethods.Lerp(start.X, end.X, (float)j / (countX - 1));
+
+                      result.Add(new Obstacle(baseScale * scaling, pos, TankGame.TankGame.random.NextDouble() > 0.75));
+                      result[result.Count - 1].Rotate(TankGame.TankGame.random.Range(-3, 3));
+                  }
+              }
+
+            return result;
+        }
+        public static List<Obstacle> GenerateVoronoiCells()
+        {
             List<Obstacle> result = new List<Obstacle>();
 
-            for(int i = 0; i < countY; ++i)
-            {
-                pos.Y = ExtensionMethods.Lerp(start.Y, end.Y, (float)i / (countY - 1));
+            Vector2[] v2;
 
-                for (int j = 0; j < countX; ++j)
+            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.5f), out v2);
+            List<Vector2[]> polys = IsolateVoronoiCells(graph, v2);
+
+            Mesh[] meshes = new Mesh[polys.Count];
+
+            for (int i = 0; i < meshes.Length; i++)
+            {
+                result.Add(new Obstacle(polys[i], false));
+                result[i].meshes[0].Scale(-0.5f);
+            }
+
+            return result;
+        }
+
+        public static List<Vector2[]> IsolateVoronoiCells(List<GraphEdge> edges, Vector2[] sites)
+        {
+            List<Vector2[]> result = new List<Vector2[]>();
+            List<Vector2> poly = new List<Vector2>();
+
+            for (int i = 0; i < sites.Length; ++i)
+            {
+                poly.Clear();
+
+                for (int j = 0; j < edges.Count; ++j)
                 {
-                    pos.X = ExtensionMethods.Lerp(start.X, end.X, (float)j / (countX - 1));
+                    if (edges[j].site1 != i && edges[j].site2 != i)
+                        continue;
 
-                    result.Add(new Obstacle(baseScale * scaling, pos, TankGame.TankGame.random.NextDouble() > 0.75));
-                    result[result.Count - 1].Rotate(TankGame.TankGame.random.Range(-3, 3));
+                    poly.Add(edges[j].p1);
+                    poly.Add(edges[j].p2);
                 }
+
+
+                result.Add(ExtensionMethods.SortPolyClockwise(ExtensionMethods.MergerVertices(poly.ToArray(), 0.05f)));
             }
-
-            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.5f));
-
-            List<Vector2> v = new List<Vector2>();
-
-            for (int i = 0; i < graph.Count; i++)
-            {
-                v.Add(graph[i].p1);
-                v.Add(graph[i].p2);
-            }
-
-    //        result[0].position = Vector2.Zero;
-
-  //          Mesh m = new Mesh(v.ToArray(), result[0], Color.Green, PrimitiveType.Lines);
-
-//            TankGame.TankGame.AddMeshToRenderStack(m);
 
             return result;
         }
@@ -508,7 +536,27 @@ namespace Utils
 
             Voronoi voroObject = new Voronoi(0.1);
 
-            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f, -TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X, TankGame.TankGame.battlefieldSize.X, -TankGame.TankGame.battlefieldSize.Y, TankGame.TankGame.battlefieldSize.Y);
+        }
+        public static List<GraphEdge> GenerateVoronoi(int count, out Vector2[] vertices)
+        {
+
+            double[] xVal = new double[count];
+            double[] yVal = new double[count];
+
+            for (int i = 0; i < xVal.Length; i++)
+            {
+                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
+                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+            }
+
+            Voronoi voroObject = new Voronoi(0.1);
+
+            List<GraphEdge> result = voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X, TankGame.TankGame.battlefieldSize.X, -TankGame.TankGame.battlefieldSize.Y, TankGame.TankGame.battlefieldSize.Y);
+
+            vertices = voroObject.sitesToVertices;
+
+            return result;
         }
 
         public static List<Obstacle> CullRandom(this List<Obstacle> o, float chance)
@@ -822,6 +870,30 @@ namespace Utils
         {
             Array.Sort(v, new ClockwiseComparer(c));
             return v;
+        }
+        public static Vector2[] MergerVertices(Vector2[] v, float threshold)
+        {
+            List<Vector2> result = new List<Vector2>();
+
+            bool b = false;
+
+            for (int i = 0; i < v.Length; ++i)
+            {
+                b = true;
+
+                if(result.Count != 0)
+                    for (int j = 0; j < result.Count; ++j)
+                    {
+                        if ((result[j] - v[i]).Length > threshold)
+                            continue;
+
+                        b = false;
+                    }
+
+                if(b) result.Add(v[i]);
+            }
+
+            return result.ToArray();
         }
         public static Vector2   GetPolyCenter(Vector2[] points)
         {
