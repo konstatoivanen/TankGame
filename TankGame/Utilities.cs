@@ -483,15 +483,15 @@ namespace Utils
 
             Vector2[] v2;
 
-            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.5f), out v2);
+            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.3f), out v2);
             List<Vector2[]> polys = IsolateVoronoiCells(graph, v2);
 
             Mesh[] meshes = new Mesh[polys.Count];
 
             for (int i = 0; i < meshes.Length; i++)
             {
-                result.Add(new Obstacle(polys[i], false));
-                result[i].meshes[0].Scale(-0.5f);
+                result.Add(new Obstacle(polys[i], TankGame.TankGame.random.NextDouble() > 0.75f));
+                result[i].meshes[0].Scale(-0.4f);
             }
 
             return result;

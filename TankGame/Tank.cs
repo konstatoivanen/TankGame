@@ -62,8 +62,7 @@ namespace TankGame
             InputUpdate();
             LocomotionUpdate(Time.deltatime);
 
-            Physics.CollisonSolve_Mesh(this, 0.5f * Time.deltatime);
-            
+            Physics.CollisonSolve_Mesh(this);      
         }
 
         private void InputUpdate()

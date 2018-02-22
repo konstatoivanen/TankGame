@@ -345,27 +345,130 @@ namespace Utils.Physics
 
             return false;
         }
-        public static void      CollisonSolve_Mesh(BaseObject b, float rotationAmount)
+        public static bool CollisionMesh(Collider c, ref List<ContactPoint> results)
+        {
+            if (c.Type != ColliderType.Mesh)
+                return false;
+
+            if (m_colliderList == null || m_colliderList.Count <= 0)
+                return false;
+
+            List<ContactPoint> contacts = new List<ContactPoint>();
+
+            bool b = false;
+
+            for (int i = 0; i < m_colliderList.Count; ++i)
+            {
+                contacts.Clear();
+                //Collider is not a mesh
+                if (m_colliderList[i].Type != ColliderType.Mesh)
+                    continue;
+
+                //Dont test against self
+                if (m_colliderList[i] == c)
+                    continue;
+
+                //Is the collider in the mask
+                if (m_colliderList[i].Layer == c.Layer)
+                    continue;
+
+                //Do the meshes intersect?
+                if (!ExtensionMethods.MeshIntersection(c.mesh, m_colliderList[i].mesh, ref contacts))
+                    continue;
+
+                //Only solve collisions with 2 contact points
+                if (contacts.Count != 2)
+                    continue;
+
+                List<Vector2> p0 = new List<Vector2>();
+                List<Vector2> p1 = new List<Vector2>();
+
+                ExtensionMethods.IntersectingVertices(c.mesh, m_colliderList[i].mesh, ref p0, ref p1);
+
+                if (p0.Count == 0 && p1.Count == 0)
+                    continue;
+
+                Vector2 d = (contacts[1].point - contacts[0].point).Normalized();
+                Vector2 p = Vector2.Zero;
+                Vector2 n1 = Vector2.Zero;
+                Vector2 n2 = Vector2.Zero;
+
+                float f0 = 0, f1 = 0;
+
+                if (p0.Count > 0)
+                    for (int j = 0; j < p0.Count; ++j)
+                    {
+                        p = contacts[1].point + d * Vector2.Dot(d, p0[j] - contacts[1].point);
+                        f1 = (p - p0[j]).LengthSquared;
+
+                        if (f1 < f0)
+                            continue;
+
+                        f0 = f1;
+                        n1 = p0[j] - p;
+                    }
+
+                f1 = 0;
+                f0 = 0;
+
+                if (p1.Count > 0)
+                    for (int j = 0; j < p1.Count; ++j)
+                    {
+                        p = contacts[1].point + d * Vector2.Dot(d, p1[j] - contacts[1].point);
+                        f1 = (p - p1[j]).LengthSquared;
+
+                        if (f1 < f0)
+                            continue;
+
+                        f0 = f1;
+                        n2 = p1[j] - p;
+                    }
+
+                p = n1 + n2;
+
+                //Avoid Nan vectors
+                if (float.IsNaN(p.X + p.Y))
+                    return false;
+
+
+                d = m_colliderList[i].parent.position - c.parent.position;
+                p *= Math.Sign(-Vector2.Dot(p, d));
+
+                results.Add( new ContactPoint(ExtensionMethods.Lerp(contacts[0].point, contacts[1].point, 0.5f), p) );
+
+                b = true;
+            }
+
+            return b;
+        }
+        public static void      CollisonSolve_Mesh(BaseObject b)
         {
             if (b.collider == null || b.collider.Type != ColliderType.Mesh)
                 return;
 
-            ContactPoint    cp      = new ContactPoint();
-            Vector2         dp      = Vector2.Zero;
+            List<ContactPoint>  cps      = new List<ContactPoint>();
+            Vector2             dp      = Vector2.Zero;
 
             if (ExtensionMethods.MapBoundsIntersection(b.collider.mesh, ref dp))
                 b.position += dp;
 
-            if (!CollisionMesh(b.collider, ref cp))
+            if (!CollisionMesh(b.collider, ref cps))
                 return;
 
-            b.position += cp.normal;
+            Vector2 d0;
+            Vector2 d1;
 
-            cp.normal = b.position - (cp.point - cp.normal);
+            for (int i = 0; i < cps.Count; i++)
+            {
+                d0 = (b.position - (cps[i].point - cps[i].normal)).Normalized();
+                d1 = (b.position -  cps[i].point).Normalized();
 
-            float angle = ExtensionMethods.Angle(b.forward, cp.normal);
+                float angle = ExtensionMethods.Angle(d0, d1);
 
-            b.forward = b.forward.Rotate(angle * rotationAmount);
+                b.forward = b.forward.Rotate(angle);
+
+                b.position += cps[i].normal;
+            }
         }
     }
 }

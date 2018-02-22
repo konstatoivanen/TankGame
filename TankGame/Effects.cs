@@ -345,7 +345,7 @@ namespace TankGame
 
             Vector2 c = ExtensionMethods.GetPolyCenter(v);
 
-            Mesh m = new Mesh(v, this, Color.Gray, PrimitiveType.LineLoop);
+            Mesh m = new Mesh(v, this, destroyable ? Color.Beige : Color.Gray, PrimitiveType.LineLoop);
 
             m.offset = -c;
 
