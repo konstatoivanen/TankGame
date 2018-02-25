@@ -524,6 +524,8 @@ namespace Utils
 
         public static List<GraphEdge> GenerateVoronoi(int count)
         {
+            //Pisteiden minimietäisyys
+            float minDist =10.0f;
 
             double[] xVal = new double[count];
             double[] yVal = new double[count];
@@ -532,6 +534,13 @@ namespace Utils
             {
                 xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
                 yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+
+                if (i == 0) continue;
+
+                Vector2 v1 = new Vector2((float)xVal[i], (float)yVal[i]);
+                Vector2 v2 = new Vector2((float)xVal[i - 1], (float)yVal[i - 1]);
+
+                if ((v2 - v1).Length <= minDist) --i;
             }
 
             Voronoi voroObject = new Voronoi(0.1);
@@ -540,14 +549,23 @@ namespace Utils
         }
         public static List<GraphEdge> GenerateVoronoi(int count, out Vector2[] vertices)
         {
+            //Pisteiden minimietäisyys
+            float minDist = 10.0f;
 
             double[] xVal = new double[count];
             double[] yVal = new double[count];
 
-            for (int i = 0; i < xVal.Length; i++)
+            for (int i = 0; i < xVal.Length; ++i)
             {
                 xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
                 yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
+
+                if (i == 0) continue;
+
+                Vector2 v1 = new Vector2((float)xVal[i], (float)yVal[i]);
+                Vector2 v2 = new Vector2((float)xVal[i-1], (float)yVal[i-1]);
+
+                if ((v2 - v1).Length <= minDist) --i;
             }
 
             Voronoi voroObject = new Voronoi(0.1);
