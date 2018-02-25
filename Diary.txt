@@ -142,3 +142,8 @@ Collab effort:
 -Fixed Projecticle 0 angle bug
 -Added processing capability for multiple collision contacts
 -Voronoi Cell Based obstacle generation (using an external voronoi plugin due to lack of time for developing a proprietary one)
+
+25/02/2018
+
+Lauri:
+-Added trackmarks when moving tanks
