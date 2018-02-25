@@ -454,4 +454,28 @@ namespace TankGame
             }
         }
     }
+
+    public class TrackMarks : BaseObject
+    {
+        float lifeTime = 0f;
+        float killTime = 0f;
+        private Vector3 startColor;
+
+        public TrackMarks(Vector2 pos, Vector2 dir, float len, Color col, float lt)
+        {
+            meshes.Add(new Mesh(new Vector2[] { pos, pos + dir * len }, this, col, PrimitiveType.Lines));
+            lifeTime = lt;
+            killTime = Time.time + lt;
+            startColor = col.ToVector();
+            Initialize();
+        }
+
+        public override void Update()
+        {
+            if (Time.time >= killTime)
+                Destroy();
+
+            //meshes[0].color = ExtensionMethods.Lerp(Vector3.Zero, startColor, (killTime - Time.time) / lifeTime).ToColor();
+        }
+    }
 }
