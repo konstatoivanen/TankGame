@@ -475,7 +475,7 @@ namespace TankGame
             if (Time.time >= killTime)
                 Destroy();
 
-            //meshes[0].color = ExtensionMethods.Lerp(Vector3.Zero, startColor, (killTime - Time.time) / lifeTime).ToColor();
+            meshes[0].color = ExtensionMethods.Lerp(Vector3.Zero, startColor, (killTime - Time.time) / lifeTime).ToColor();
         }
     }
 }

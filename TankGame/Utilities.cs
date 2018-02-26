@@ -1096,8 +1096,9 @@ namespace Utils
         public static Color   ToColor(this Vector3 v)
         {
             Vector3 v1 = v;
-            v1  *= 255;        
-            return Color.FromArgb((int)Math.Round(v1.X), (int)Math.Round(v1.X), (int)Math.Round(v1.X));
+            v1  *= 255;    
+            
+            return Color.FromArgb((int)Math.Floor(v1.X), (int)Math.Floor(v1.Y), (int)Math.Floor(v1.Z));
         }
         public static Vector3 ToVector(this Color c)
         {

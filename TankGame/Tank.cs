@@ -24,6 +24,10 @@ namespace TankGame
         private float as_current; //aim speed current
         private float as_target; // aim speed target
 
+        private Vector2 prevPos;
+        float trackGap = 0.5f;
+        float currentGap = 0f;
+
         public Tank(float acceleration0, float aimAcceleration0, float turnFactor0, Vector2 position0, Vector2 direction, Color color, InputScheme input0, PhysicsLayer layer)
         {
             List<Mesh> Meshes = new List<Mesh>();
@@ -43,6 +47,7 @@ namespace TankGame
             meshes          = Meshes;
             forward         = direction;
             position        = position0;
+            prevPos         = position;
 
             acceleration    = acceleration0;
             aimAcceleration = aimAcceleration0;
@@ -94,8 +99,6 @@ namespace TankGame
             new MuzzleFlash(meshes[2].worldPosition + meshes[2].forward * 3.2f, meshes[2].forward);
         }
 
-        float trackGap = 0.5f;
-        float currentGap = 0f;
         private void LocomotionUpdate(float delta)
         {
             lts_current = ExtensionMethods.MoveTowards(lts_current, lts_target, acceleration * delta);
@@ -113,41 +116,27 @@ namespace TankGame
             position += forward * (lts_current + rts_current) * delta;
 
             //Track marks
-            currentGap += delta;
+            currentGap += (position - prevPos).Length;
             
             if (currentGap >= trackGap)
-            {
-                
-                if (rts_current == 0 && lts_current == 0)
-                    return;
-
-                else if (rts_current >= 0 && lts_current >= 0)
-                {
+            {       
+                if (Vector2.Dot(forward, position - prevPos) > 0)
+                { 
                     // forward
                     new TrackMarks(position - forward * 2f + right * 1f, -right, 0.8f, meshes[0].color, 5f);
                     new TrackMarks(position - forward * 2f + -right * 1f, right, 0.8f, meshes[0].color, 5f);
                 }
-                else if (rts_current <= 0 && lts_current <= 0)
+                else
                 {
                     // backward
                     new TrackMarks(position + forward * 2f + right * 1f, -right, 0.8f, meshes[0].color, 5f);
                     new TrackMarks(position + forward * 2f + -right * 1f, right, 0.8f, meshes[0].color, 5f);
                 }
-                else if (rts_current >= 0 && lts_current <= 0)
-                {
-                    // spinning counter clockwise
-                    new TrackMarks(position - forward * 2f + right * 1f, -right, 0.8f, meshes[0].color, 5f);
-                    new TrackMarks(position + forward * 2f + -right * 1f, right, 0.8f, meshes[0].color, 5f);
-                }
-                else if (rts_current <= 0 && lts_current >= 0)
-                {
-                    // spinning clockwise
-                    new TrackMarks(position + forward * 2f + right * 1f, -right, 0.8f, meshes[0].color, 5f);
-                    new TrackMarks(position - forward * 2f + -right * 1f, right, 0.8f, meshes[0].color, 5f);
-                }
 
                 currentGap = 0f;
             }
+
+            prevPos = position;
         }
         public  void SetLocomotiontarget(float tl, float tr, float t)
         {
