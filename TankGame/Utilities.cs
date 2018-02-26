@@ -451,6 +451,26 @@ namespace Utils
 
     public static class LevelGeneration
     {
+        public static void DestroyCellsOnTanks(ref List<Obstacle> list)
+        {
+            List<Obstacle> result = new List<Obstacle>(); 
+
+            for (int i = 0; i < list.Count; ++i)
+            {
+                if (ExtensionMethods.IntersectingVertices(list[i].meshes[0], TankGame.TankGame.player1.meshes[0]))
+                {
+                    list[i].DestroyImmediate();
+                    continue;
+                }
+                if (ExtensionMethods.IntersectingVertices(list[i].meshes[0], TankGame.TankGame.player2.meshes[0]))
+                {
+                    list[i].DestroyImmediate();
+                    continue;
+                }
+                result.Add(list[i]);
+            }
+            list = result;
+        }
         public static List<Obstacle> GenerateGrid(Vector2 start, Vector2 end, int countX, int countY, float scaling)
         {
               Vector2 baseScale       = end - start;
@@ -477,16 +497,41 @@ namespace Utils
 
             return result;
         }
-        public static List<Obstacle> GenerateVoronoiCells()
+        public static List<Obstacle> GenerateVoronoiCells(Vector2 start, Vector2 end, int countX, int countY, float scaling)
         {
+            Vector2 baseScale = end - start;
+            baseScale.X /= countX;
+            baseScale.Y /= countY;
+            baseScale *= 0.5f;
+
+            Vector2 pos = Vector2.Zero;
+
             List<Obstacle> result = new List<Obstacle>();
+
+            List<Vector2> vList = new List<Vector2>();
+
+            for (int i = 0; i < countY; ++i)
+            {
+                pos.Y = ExtensionMethods.Lerp(start.Y, end.Y, (float)i / (countY - 1));
+
+                for (int j = 0; j < countX; ++j)
+                {
+                    pos.X = ExtensionMethods.Lerp(start.X, end.X, (float)j / (countX - 1));
+
+                    pos += new Vector2(TankGame.TankGame.random.Range(-baseScale.X, baseScale.X), TankGame.TankGame.random.Range(-baseScale.Y, baseScale.Y));
+
+                    vList.Add(pos);
+                }
+            }
 
             Vector2[] v2;
 
-            List<GraphEdge> graph = GenerateVoronoi((int)Math.Ceiling(TankGame.TankGame.battlefieldSize.X * 0.3f), out v2);
+            List<GraphEdge> graph = GenerateVoronoi(vList.ToArray(), out v2);
             List<Vector2[]> polys = IsolateVoronoiCells(graph, v2);
 
             Mesh[] meshes = new Mesh[polys.Count];
+
+
 
             for (int i = 0; i < meshes.Length; i++)
             {
@@ -522,50 +567,16 @@ namespace Utils
             return result;
         }
 
-        public static List<GraphEdge> GenerateVoronoi(int count)
+        public static List<GraphEdge> GenerateVoronoi(Vector2[] points, out Vector2[] vertices)
         {
-            //Pisteiden minimietäisyys
-            float minDist =10.0f;
 
-            double[] xVal = new double[count];
-            double[] yVal = new double[count];
-
-            for (int i = 0; i < xVal.Length; i++)
-            {
-                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
-                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
-
-                if (i == 0) continue;
-
-                Vector2 v1 = new Vector2((float)xVal[i], (float)yVal[i]);
-                Vector2 v2 = new Vector2((float)xVal[i - 1], (float)yVal[i - 1]);
-
-                if ((v2 - v1).Length <= minDist) --i;
-            }
-
-            Voronoi voroObject = new Voronoi(0.1);
-
-            return voroObject.generateVoronoi(xVal, yVal, -TankGame.TankGame.battlefieldSize.X * 2, TankGame.TankGame.battlefieldSize.X * 2, -TankGame.TankGame.battlefieldSize.Y * 2, TankGame.TankGame.battlefieldSize.Y * 2);
-        }
-        public static List<GraphEdge> GenerateVoronoi(int count, out Vector2[] vertices)
-        {
-            //Pisteiden minimietäisyys
-            float minDist = 10.0f;
-
-            double[] xVal = new double[count];
-            double[] yVal = new double[count];
+            double[] xVal = new double[points.Length];
+            double[] yVal = new double[points.Length];
 
             for (int i = 0; i < xVal.Length; ++i)
             {
-                xVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.X * 0.5f, TankGame.TankGame.battlefieldSize.X * 0.5f);
-                yVal[i] = TankGame.TankGame.random.Range(-TankGame.TankGame.battlefieldSize.Y * 0.5f, TankGame.TankGame.battlefieldSize.Y * 0.5f);
-
-                if (i == 0) continue;
-
-                Vector2 v1 = new Vector2((float)xVal[i], (float)yVal[i]);
-                Vector2 v2 = new Vector2((float)xVal[i-1], (float)yVal[i-1]);
-
-                if ((v2 - v1).Length <= minDist) --i;
+                xVal[i] = points[i].X;
+                yVal[i] = points[i].Y;
             }
 
             Voronoi voroObject = new Voronoi(0.1);
@@ -662,6 +673,67 @@ namespace Utils
                 m2v.Add(v2[i]);
             }
         }
+        public static bool      IntersectingVertices(Mesh m1, Mesh m2)
+        {
+            Vector2[] v1 = m1.verticesWorldSpace;
+            Vector2[] v2 = m2.verticesWorldSpace;
+
+            v1 = SortPolyClockwise(v1);
+            v2 = SortPolyClockwise(v2);
+
+            Vector2 n;
+            Vector2 d;
+
+            int count = 0;
+
+            //Are any of the v1 vertices inside v2
+            for (int i = 0; i < v1.Length; ++i)
+            {
+                count = 0;
+
+                for (int j = 0; j < v2.Length; ++j)
+                {
+                    n = v2[j] - v2[j == v2.Length - 1 ? 0 : j + 1];
+                    n = n.GetNormal();
+                    d = v1[i] - v2[j];
+
+                    if (Vector2.Dot(n, d) <= 0)
+                        continue;
+
+                    ++count;
+                }
+
+                if (count != v2.Length)
+                    continue;
+
+                return true;
+            }
+
+            //Are any of the v2 vertices inside v1
+            for (int i = 0; i < v2.Length; ++i)
+            {
+                count = 0;
+
+                for (int j = 0; j < v1.Length; ++j)
+                {
+                    n = v1[j] - v1[j == v1.Length - 1 ? 0 : j + 1];
+                    n = n.GetNormal();
+                    d = v2[i] - v1[j];
+
+                    if (Vector2.Dot(n, d) <= 0)
+                        continue;
+
+                    ++count;
+                }
+
+                if (count != v1.Length)
+                    continue;
+
+                return true;
+            }
+            return false;
+        }
+
         public static bool      MapBoundsIntersection(Mesh m, ref Vector2 dep)
         {
             Bounds b = new Bounds(m);
