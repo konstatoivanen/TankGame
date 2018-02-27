@@ -143,7 +143,24 @@ Collab effort:
 -Added processing capability for multiple collision contacts
 -Voronoi Cell Based obstacle generation (using an external voronoi plugin due to lack of time for developing a proprietary one)
 
+- - -
+
 25/02/2018
 
 Lauri:
 -Added trackmarks when moving tanks
+
+- - - 
+
+26/02/2018
+
+Collab:
+-Added fade effect to trackmarks
+-Randomization and minimum distance for Voronoi points
+-Fixed players spawning inside obstacles
+
+- - -
+
+27/02/2018
+
+Presentation
