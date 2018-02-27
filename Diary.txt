@@ -3,6 +3,11 @@
 
 Project diary
 
+Members:
+Anssi Remes
+Lauri Räsänen
+Konsta Toivanen
+
 **ATTENTION**
 
 This diary may not contain everything that was developed for the project.
